@@ -1,3 +1,3 @@
 <nav>
-    <h1>Cafeteria</h1>
+    <h1 class="text-primary">Cafeteria</h1>
 </nav>
