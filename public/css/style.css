@@ -1,0 +1,35 @@
+body {
+  font-family: "Be Vietnam Pro", sans-serif;
+  background: #faf9f6;
+}
+.main-content {
+  margin-left: 260px;
+  padding: 20px;
+}
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #fff;
+  border-right: 1px solid #eee;
+}
+.sidebar .nav-link.active {
+  font-weight: bold;
+  background: #e9f5ee;
+  border-left: 4px solid #198754;
+}
+.sidebar .nav-link {
+  color: #555;
+  transition: 0.2s;
+}
+.sidebar .nav-link:hover {
+  background: #f5f5f5;
+  transform: translateX(4px);
+}
+.topbar {
+  margin-left: 260px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}

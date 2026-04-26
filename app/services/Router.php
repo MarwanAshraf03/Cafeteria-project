@@ -21,7 +21,12 @@ class Router {
                 return $handler();
             }
             if (is_string($handler)) {
-                $viewPath = __DIR__ . '/../../views/pages/' . $handler;
+                if ($handler == 'style.css') {
+                    header('Content-Type: text/css');
+                    $viewPath = __DIR__ . '/../../public/css/' . $handler;
+                }else {
+                    $viewPath = __DIR__ . '/../../views/pages/' . $handler;
+                }
                 if (file_exists($viewPath)) {
                     include $viewPath;
                     return;
