@@ -8,7 +8,7 @@ ob_start();
   </div>
   <div class="card card-custom p-4 mb-4">
 
-    <form class="row g-4">
+    <form class="row g-4" action="/Cafeteria-project/user/create" method="POST">
       <div class="col-12">
         <label class="form-label">Profile Picture</label>
         <div class="d-flex align-items-center gap-4">
@@ -25,35 +25,34 @@ ob_start();
       <!-- Fields -->
       <div class="col-md-6">
         <label class="form-label">Full Name</label>
-        <input class="form-control" type="text">
+        <input class="form-control" type="text" name="name">
       </div>
 
       <div class="col-md-6">
         <label class="form-label">Email</label>
-        <input class="form-control" type="email">
+        <input class="form-control" type="email" name="email">
       </div>
 
       <div class="col-md-6">
         <label class="form-label">Password</label>
-        <input class="form-control" type="password">
+        <input class="form-control" type="password" name="password">
       </div>
 
       <div class="col-md-6">
         <label class="form-label">Confirm Password</label>
-        <input class="form-control" type="password">
+        <input class="form-control" type="password" name="confirm_password">
       </div>
 
       <div class="col-md-6">
         <label class="form-label">Room</label>
-        <input class="form-control" type="text">
+        <input class="form-control" type="text" name="room">
       </div>
 
       <div class="col-md-6">
         <label class="form-label">Role</label>
-        <select class="form-select">
-          <option>Guest</option>
-          <option>Staff</option>
-          <option>Kitchen Admin</option>
+        <select class="form-select" name="role">
+          <option value="guest">Guest</option>
+          <option value="admin">Admin</option>
         </select>
       </div>
       <div class="col-12 text-end">

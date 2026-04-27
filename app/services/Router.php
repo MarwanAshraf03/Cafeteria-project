@@ -4,8 +4,8 @@ namespace App\Services;
 
 class Router {
     private $routes = [];
-    public function add($uri, $handler) {
-        $this->routes[$uri] = $handler;
+    public function add($uri, $method, $handler) {
+        $this->routes[$uri][$method] = $handler;
     }
     public function dispatch($requestUri) {
         $uri = parse_url($requestUri, PHP_URL_PATH);
@@ -14,8 +14,10 @@ class Router {
             $uri = substr($uri, strlen($basePath));
         }
         $uri = '/' . trim($uri, '/');
-        if (isset($this->routes[$uri])) {
-            $handler = $this->routes[$uri];
+        $method = $_SERVER['REQUEST_METHOD'];
+
+        if (isset($this->routes[$uri][$method])) {
+            $handler = $this->routes[$uri][$method];
             
             if (is_callable($handler)) {
                 return $handler();
@@ -28,6 +30,7 @@ class Router {
                     $viewPath = __DIR__ . '/../../views/pages/' . $handler;
                 }
                 if (file_exists($viewPath)) {
+                    $user = \App\Services\Auth::user();
                     include $viewPath;
                     return;
                 }

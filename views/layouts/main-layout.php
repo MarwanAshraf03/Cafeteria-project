@@ -10,7 +10,6 @@
 </head>
 <body>
     <?php 
-    require __DIR__ . '/../components/nav-bar.php';
     require __DIR__ . '/../components/side-bar.php';
     ?>
     <div class="main-content">

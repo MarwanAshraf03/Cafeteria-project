@@ -1,5 +1,3 @@
 <?php
-define("app_name", "App name");
-
-
+define("app_name", "Cafeteria");
 ?>

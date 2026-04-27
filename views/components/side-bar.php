@@ -1,7 +1,7 @@
 <?php
 if(!isset($activePage)){
     $activePage = "";
-}
+  }
 ?>
 <div class="sidebar d-flex flex-column p-3">
   <div class="d-flex align-items-center mb-4">
@@ -9,8 +9,8 @@ if(!isset($activePage)){
       <span class="material-symbols-outlined">restaurant</span>
     </div>
     <div>
-      <h6 class="mb-0 serif">Hotel Cafeteria</h6>
-      <small class="text-muted">Administrator</small>
+      <h6 class="mb-0 serif"><?php echo $user ? $user->name : 'Guest'; ?></h6>
+      <small class="text-muted"><?php echo $user ? $user->role : 'Please login'; ?></small>
     </div>
   </div>
   <ul class="nav nav-pills flex-column mb-auto">
@@ -25,6 +25,19 @@ if(!isset($activePage)){
         Add New User
       </a>
     </li>
+    <?php if ($user): ?>
+    <li class="nav-item">
+      <a href="/Cafeteria-project/logout" class="nav-link d-flex align-items-center">
+        Logout
+      </a>
+    </li>
+    <?php else: ?>
+    <li class="nav-item">
+      <a href="/Cafeteria-project/login" class="nav-link d-flex align-items-center <?php if($activePage == 'login') echo 'active'; ?>">
+        Login
+      </a>
+    </li>
+    <?php endif; ?>
 
 
   </ul>

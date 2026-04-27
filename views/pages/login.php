@@ -46,10 +46,10 @@ require_once("core/globals.php");
         <h3 class="fw-bold" style="font-family: 'Noto Serif', serif;">Login</h3>
         <p class="text-muted">Welcome back to <?php echo app_name ?></p>
       </div>
-      <form>
+      <form action="/Cafeteria-project/login" method="post">
         <div class="mb-4">
           <label class="form-label">Email Address</label>
-          <input type="email" class="form-control border-0 border-bottom rounded-0" placeholder="name@hotel.com" required>
+          <input type="email" class="form-control border-0 border-bottom rounded-0" name="email" placeholder="name@hotel.com" required>
         </div>
 
         <div class="mb-4">
@@ -57,7 +57,7 @@ require_once("core/globals.php");
             <label class="form-label">Password</label>
             <a href="#" class="small text-decoration-none text-danger">Forgot?</a>
           </div>
-          <input type="password" class="form-control border-0 border-bottom rounded-0" placeholder="••••••••" required>
+          <input type="password" class="form-control border-0 border-bottom rounded-0" name="password" placeholder="••••••••" required>
         </div>
 
         <button class="btn btn-success w-100 py-3">
