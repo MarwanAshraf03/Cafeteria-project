@@ -15,7 +15,7 @@ class UserController {
         $profile_picture_link = "image";
         $user = new User(null,$name, $email, $password, $role, $room, $profile_picture_link);
         $user->save();
-        header('Location: /Cafeteria-project');
+        header('Location: ' . base_path(''));
     }
 
     public function login() {
@@ -24,15 +24,15 @@ class UserController {
         $user = User::findByEmail($email);
         if($user && password_verify($password, $user->password)) {
             \App\Services\Auth::login($user->id);
-            header('Location: /Cafeteria-project');
+            header('Location: ' . base_path(''));
         } else {
-            header('Location: /Cafeteria-project/login');
+            header('Location: ' . base_path('login'));
         }
     }
     
     public function logout() {
         \App\Services\Auth::logout();
-        header('Location: /Cafeteria-project/login');
+        header('Location: ' . base_path('login'));
     }
 
     public function index() {
@@ -54,12 +54,12 @@ class UserController {
         $user->room = $_POST['room'];
         $user->profile_picture_link = $_POST['profile_picture_link'];
         $user->save();
-        header('Location: /Cafeteria-project');
+        header('Location: ' . base_path(''));
     }
 
     public function destroy($id) {
         $user = User::find($id);
         $user->delete();
-        header('Location: /Cafeteria-project');
+        header('Location: ' . base_path(''));
     }
 }

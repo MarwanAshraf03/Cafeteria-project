@@ -10,7 +10,9 @@ class Router {
     public function dispatch($requestUri) {
         $uri = parse_url($requestUri, PHP_URL_PATH);
         $basePath = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-        if ($basePath !== '/' && strpos($uri, $basePath) === 0) {
+        $normalizedBasePath = strtolower($basePath);
+        $normalizedUri = strtolower($uri);
+        if ($basePath !== '/' && strpos($normalizedUri, $normalizedBasePath) === 0) {
             $uri = substr($uri, strlen($basePath));
         }
         $uri = '/' . trim($uri, '/');

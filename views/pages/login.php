@@ -9,7 +9,7 @@ require_once("core/globals.php");
   <title><?php echo app_name ?> Login</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@600;700&family=Be+Vietnam+Pro:wght@400;600&display=swap" rel="stylesheet">
-  <link href="/Cafeteria-project/style" rel="stylesheet">
+  <link href="<?php echo base_path('style'); ?>" rel="stylesheet">
 
   <style>
     .login-gradient {
@@ -46,7 +46,7 @@ require_once("core/globals.php");
         <h3 class="fw-bold" style="font-family: 'Noto Serif', serif;">Login</h3>
         <p class="text-muted">Welcome back to <?php echo app_name ?></p>
       </div>
-      <form action="/Cafeteria-project/login" method="post">
+      <form action="<?php echo base_path('login'); ?>" method="post">
         <div class="mb-4">
           <label class="form-label">Email Address</label>
           <input type="email" class="form-control border-0 border-bottom rounded-0" name="email" placeholder="name@hotel.com" required>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/core/globals.php';
 require_once __DIR__ . '/app/services/Auth.php';
 require_once __DIR__ . '/app/services/Router.php';
 require_once __DIR__ . '/app/services/Database.php';

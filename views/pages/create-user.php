@@ -8,7 +8,7 @@ ob_start();
   </div>
   <div class="card card-custom p-4 mb-4">
 
-    <form class="row g-4" action="/Cafeteria-project/user/create" method="POST">
+    <form class="row g-4" action="<?php echo base_path('user/create'); ?>" method="POST">
       <div class="col-12">
         <label class="form-label">Profile Picture</label>
         <div class="d-flex align-items-center gap-4">
