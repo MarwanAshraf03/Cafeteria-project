@@ -4,9 +4,36 @@ require_once __DIR__ . '/../models/product.php';
 require_once __DIR__ . '/../models/room.php';
 require_once __DIR__ . '/../models/order.php';
 require_once __DIR__ . '/../models/order_item.php';
+require_once __DIR__ . '/../models/user.php';
 require_once __DIR__ . '/../services/Auth.php';
 
 class OrderController {
+    private function parseDateInput($value) {
+        if (!is_string($value) || trim($value) === '') {
+            return '';
+        }
+
+        $trimmed = trim($value);
+        $date = \DateTime::createFromFormat('Y-m-d', $trimmed);
+        if (!$date || $date->format('Y-m-d') !== $trimmed) {
+            return '';
+        }
+        return $trimmed;
+    }
+
+    private function parsePositiveIntInput($value) {
+        if ($value === null || $value === '') {
+            return 0;
+        }
+
+        if (!is_numeric($value)) {
+            return 0;
+        }
+
+        $number = intval($value);
+        return $number > 0 ? $number : 0;
+    }
+
     public function home() {
         $products = Product::all();
         $rooms = Room::all();
@@ -127,5 +154,62 @@ class OrderController {
         }
 
         header('Location: ' . base_path('orders'));
+    }
+
+    public function adminChecks() {
+        $user = \App\Services\Auth::user();
+        if (!$user) {
+            header('Location: ' . base_path('login'));
+            return;
+        }
+        if (strtoupper($user->role) !== 'ADMIN') {
+            header('Location: ' . base_path(''));
+            return;
+        }
+
+        $fromDate = $this->parseDateInput($_GET['from'] ?? '');
+        $toDate = $this->parseDateInput($_GET['to'] ?? '');
+        if ($fromDate !== '' && $toDate !== '' && $fromDate > $toDate) {
+            $toDate = $fromDate;
+        }
+
+        $selectedUserId = $this->parsePositiveIntInput($_GET['user_id'] ?? 0);
+        $expandedUserId = $this->parsePositiveIntInput($_GET['expanded_user_id'] ?? 0);
+        $selectedOrderId = $this->parsePositiveIntInput($_GET['order_id'] ?? 0);
+        $currentPage = $this->parsePositiveIntInput($_GET['page'] ?? 1);
+        if ($currentPage <= 0) {
+            $currentPage = 1;
+        }
+
+        $perPage = 5;
+        $availableUsers = User::allCustomers();
+
+        $totalUsersWithChecks = Order::countChecksUsers($selectedUserId, $fromDate, $toDate);
+        $totalPages = max(1, (int)ceil($totalUsersWithChecks / $perPage));
+        if ($currentPage > $totalPages) {
+            $currentPage = $totalPages;
+        }
+        $offset = ($currentPage - 1) * $perPage;
+        $checksRows = Order::checksSummaryByUser($selectedUserId, $fromDate, $toDate, $perPage, $offset);
+
+        if ($expandedUserId <= 0 && $selectedUserId > 0) {
+            $expandedUserId = $selectedUserId;
+        }
+
+        $expandedOrders = [];
+        if ($expandedUserId > 0) {
+            $expandedOrders = Order::ordersForChecksUser($expandedUserId, $fromDate, $toDate);
+        }
+
+        $selectedOrder = null;
+        $selectedItems = [];
+        if ($expandedUserId > 0 && $selectedOrderId > 0) {
+            $selectedOrder = Order::findForChecksUser($selectedOrderId, $expandedUserId, $fromDate, $toDate);
+            if ($selectedOrder) {
+                $selectedItems = OrderItem::forOrder($selectedOrderId);
+            }
+        }
+
+        require __DIR__ . '/../../views/pages/admin-checks.php';
     }
 }

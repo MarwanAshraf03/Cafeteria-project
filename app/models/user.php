@@ -59,6 +59,12 @@ class User {
         return $users;
     }
 
+    public static function allCustomers() {
+        $stmt = Database::getInstance()->getConnection()->prepare("SELECT id, name FROM users WHERE UPPER(role) = 'USER' ORDER BY name ASC");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function delete() {
         $stmt = Database::getInstance()->getConnection()->prepare("DELETE FROM users WHERE id = ?");
         $stmt->execute([$this->id]);

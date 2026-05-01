@@ -3,6 +3,30 @@
 require_once __DIR__ . '/../services/Database.php';
 
 class Order {
+    private static function checksFiltersSql($selectedUserId, $fromDate, $toDate, &$params) {
+        $where = [];
+        $params = [];
+
+        if ($selectedUserId > 0) {
+            $where[] = "o.user_id = ?";
+            $params[] = $selectedUserId;
+        }
+        if ($fromDate !== '') {
+            $where[] = "DATE(o.created_at) >= ?";
+            $params[] = $fromDate;
+        }
+        if ($toDate !== '') {
+            $where[] = "DATE(o.created_at) <= ?";
+            $params[] = $toDate;
+        }
+
+        if (empty($where)) {
+            return "";
+        }
+
+        return " WHERE " . implode(" AND ", $where);
+    }
+
     public static function create($userId, $roomId, $notes, $status, $totalPrice) {
         $stmt = Database::getInstance()->getConnection()->prepare(
             "INSERT INTO orders (user_id, room_id, notes, status, total_price, created_at) VALUES (?, ?, ?, ?, ?, NOW())"
@@ -52,5 +76,86 @@ class Order {
             "UPDATE orders SET status = ? WHERE id = ?"
         );
         $stmt->execute([$status, $orderId]);
+    }
+
+    public static function countChecksUsers($selectedUserId, $fromDate, $toDate) {
+        $params = [];
+        $filterSql = self::checksFiltersSql($selectedUserId, $fromDate, $toDate, $params);
+        $query = "SELECT COUNT(*) AS total
+                  FROM (
+                    SELECT o.user_id
+                    FROM orders o
+                    $filterSql
+                    GROUP BY o.user_id
+                  ) grouped_users";
+
+        $stmt = Database::getInstance()->getConnection()->prepare($query);
+        $stmt->execute($params);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return (int)($result['total'] ?? 0);
+    }
+
+    public static function checksSummaryByUser($selectedUserId, $fromDate, $toDate, $limit, $offset) {
+        $params = [];
+        $filterSql = self::checksFiltersSql($selectedUserId, $fromDate, $toDate, $params);
+        $limit = max(1, (int)$limit);
+        $offset = max(0, (int)$offset);
+        $query = "SELECT 
+                    u.id AS user_id,
+                    u.name AS user_name,
+                    COALESCE(SUM(o.total_price), 0) AS total_amount
+                  FROM orders o
+                  INNER JOIN users u ON u.id = o.user_id
+                  $filterSql
+                  GROUP BY u.id, u.name
+                  ORDER BY u.name ASC
+                  LIMIT $limit OFFSET $offset";
+
+        $stmt = Database::getInstance()->getConnection()->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function ordersForChecksUser($userId, $fromDate, $toDate) {
+        $params = [$userId];
+        $query = "SELECT id, user_id, created_at, total_price, status
+                  FROM orders
+                  WHERE user_id = ?";
+
+        if ($fromDate !== '') {
+            $query .= " AND DATE(created_at) >= ?";
+            $params[] = $fromDate;
+        }
+        if ($toDate !== '') {
+            $query .= " AND DATE(created_at) <= ?";
+            $params[] = $toDate;
+        }
+
+        $query .= " ORDER BY created_at DESC";
+
+        $stmt = Database::getInstance()->getConnection()->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function findForChecksUser($orderId, $userId, $fromDate, $toDate) {
+        $params = [$orderId, $userId];
+        $query = "SELECT id, user_id, room_id, notes, status, total_price, created_at
+                  FROM orders
+                  WHERE id = ? AND user_id = ?";
+
+        if ($fromDate !== '') {
+            $query .= " AND DATE(created_at) >= ?";
+            $params[] = $fromDate;
+        }
+        if ($toDate !== '') {
+            $query .= " AND DATE(created_at) <= ?";
+            $params[] = $toDate;
+        }
+
+        $stmt = Database::getInstance()->getConnection()->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

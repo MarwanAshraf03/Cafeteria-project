@@ -25,6 +25,9 @@ $router->add('/user/create', 'POST',function()use($userController){
 $router->add('/orders', 'GET',function()use($orderController){
     $orderController->history();
 });
+$router->add('/admin/checks', 'GET',function()use($orderController){
+    $orderController->adminChecks();
+});
 $router->add('/orders/confirm', 'POST',function()use($orderController){
     $orderController->store();
 });

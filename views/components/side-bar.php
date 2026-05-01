@@ -16,7 +16,7 @@ if(!isset($activePage)){
   <ul class="nav nav-pills flex-column mb-auto">
 
       <li>
-        <a href="<?php echo base_path(''); ?>" class="nav-link d-flex align-items-center <?php if($activePage == 'home') echo 'active'; ?>">
+        <a href="<?php echo base_path('home'); ?>" class="nav-link d-flex align-items-center <?php if($activePage == 'home') echo 'active'; ?>">
           Home
         </a>
       </li>
@@ -30,6 +30,13 @@ if(!isset($activePage)){
         My Orders
       </a>
     </li>
+    <?php if ($user && strtoupper($user->role) === 'ADMIN'): ?>
+    <li class="nav-item">
+      <a href="<?php echo base_path('admin/checks'); ?>" class="nav-link d-flex align-items-center <?php if($activePage == 'admin-checks') echo 'active'; ?>">
+        Checks
+      </a>
+    </li>
+    <?php endif; ?>
     <?php if ($user): ?>
     <li class="nav-item">
       <a href="<?php echo base_path('logout'); ?>" class="nav-link d-flex align-items-center">
