@@ -9,6 +9,15 @@
     <title><?php echo $title; ?></title>
 </head>
 <body>
+    <?php
+    require_once __DIR__ . '/../../app/services/Auth.php';
+    if (!isset($user)) {
+        $user = \App\Services\Auth::user();
+    }
+    if (!isset($activePage)) {
+        $activePage = "";
+    }
+    ?>
     <?php 
     require __DIR__ . '/../components/side-bar.php';
     ?>

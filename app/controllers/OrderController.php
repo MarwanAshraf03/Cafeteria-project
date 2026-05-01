@@ -1,5 +1,9 @@
 <?php
 
+use App\Enums\Role;
+use App\Models\User;
+use App\Services\Auth;
+
 require_once __DIR__ . '/../models/product.php';
 require_once __DIR__ . '/../models/room.php';
 require_once __DIR__ . '/../models/order.php';
@@ -51,12 +55,15 @@ class OrderController {
         require __DIR__ . '/../../views/pages/home.php';
     }
 
-    public function store() {
-        $user = \App\Services\Auth::user();
+    public function store()
+    {
+        $user = Auth::user();
         if (!$user) {
             header('Location: ' . base_path('login'));
             return;
         }
+
+        $user_id = null;
 
         $roomId = isset($_POST['room_id']) ? intval($_POST['room_id']) : 0;
         $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
@@ -104,13 +111,18 @@ class OrderController {
             return;
         }
 
-        $orderId = Order::create($user->id, $roomId, $notes, 'Processing', $total);
+        if (Auth::role() == Role::Admin) {
+            $user_id = $_POST['user_id'];
+        }
+
+        $orderId = Order::create($user_id ?? $user->id, $roomId, $notes, 'Processing', $total);
         OrderItem::addItems($orderId, $orderItems);
 
-        header('Location: ' . base_path(''));
+        header('Location: ' . base_path('/home'));
     }
 
-    public function history() {
+    public function history()
+    {
         $user = \App\Services\Auth::user();
         if (!$user) {
             header('Location: ' . base_path('login'));
@@ -135,7 +147,8 @@ class OrderController {
         require __DIR__ . '/../../views/pages/orders.php';
     }
 
-    public function cancel() {
+    public function cancel()
+    {
         $user = \App\Services\Auth::user();
         if (!$user) {
             header('Location: ' . base_path('login'));

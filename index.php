@@ -7,7 +7,7 @@ require_once __DIR__ . '/app/services/Router.php';
 require_once __DIR__ . '/app/services/Database.php';
 require_once __DIR__ . '/app/services/DatabaseInitializer.php';
 require_once __DIR__ . '/app/models/user.php';
-require_once __DIR__ . '/app/controllers/userController.php';
+require_once __DIR__ . '/app/controllers/UserController.php';
 
 use App\Services\Auth;
 
