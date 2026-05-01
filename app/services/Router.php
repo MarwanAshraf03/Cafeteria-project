@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
-class Router {
+class Router
+{
     private $routes = [];
-    public function add($uri, $method, $handler) {
+    public function add($uri, $method, $handler)
+    {
         $this->routes[$uri][$method] = $handler;
     }
-    public function dispatch($requestUri) {
+    public function dispatch($requestUri)
+    {
         $uri = parse_url($requestUri, PHP_URL_PATH);
         $basePath = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
         $normalizedBasePath = strtolower($basePath);
@@ -16,11 +19,11 @@ class Router {
             $uri = substr($uri, strlen($basePath));
         }
         $uri = '/' . trim($uri, '/');
-        $method = $_SERVER['REQUEST_METHOD'];
+        $method = $_POST['_method'] ?? $_SERVER['REQUEST_METHOD'];
 
         if (isset($this->routes[$uri][$method])) {
             $handler = $this->routes[$uri][$method];
-            
+
             if (is_callable($handler)) {
                 return $handler();
             }
@@ -28,7 +31,7 @@ class Router {
                 if ($handler == 'style.css') {
                     header('Content-Type: text/css');
                     $viewPath = __DIR__ . '/../../public/css/' . $handler;
-                }else {
+                } else {
                     $viewPath = __DIR__ . '/../../views/pages/' . $handler;
                 }
                 if (file_exists($viewPath)) {
@@ -41,5 +44,9 @@ class Router {
         header("HTTP/1.0 404 Not Found");
         echo "<h1>404 Not Found</h1>";
         echo "The page you requested was not found: " . htmlspecialchars($uri);
+        echo "<pre>";
+        echo $method . "\n";
+        var_dump($this->routes);
+        echo "</pre>";
     }
 }

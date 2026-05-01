@@ -2,15 +2,15 @@ DROP DATABASE IF EXISTS cafeteria_demo;
 CREATE DATABASE IF NOT EXISTS cafeteria_demo;
 USE cafeteria_demo;
 
-CREATE TABLE IF NOT EXISTS room (
+CREATE TABLE IF NOT EXISTS rooms (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   extension VARCHAR(15) NOT NULL
 );
 
-INSERT INTO room (name, extension) VALUES ("001", "40502"), ("002", "40502"), ("003", "40502");
+INSERT INTO rooms (name, extension) VALUES ("001", "40502"), ("002", "40502"), ("003", "40502");
 
-CREATE TABLE IF NOT EXISTS user (
+CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
@@ -18,53 +18,55 @@ CREATE TABLE IF NOT EXISTS user (
   role ENUM('ADMIN', "USER") NOT NULL,
   profile_picture_url VARCHAR(255),
   room_id INT NOT NULL,
-  FOREIGN KEY (room_id) REFERENCES room(id)
+  FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
-INSERT INTO user (name, email, password, role, room_id) VALUES ("marwan", "marwan@ashraf.com", "12341234", "ADMIN", 1), ("ashraf", "ashraf@marwan.com", "12341234", "USER", 1), ("mohamed", "mohamed@ashraf.com", "12341234", "USER", 2);
+INSERT INTO users (name, email, password, role, room_id) VALUES ("marwan", "marwan@ashraf.com", "12341234", "ADMIN", 1), ("ashraf", "ashraf@marwan.com", "12341234", "USER", 1), ("mohamed", "mohamed@ashraf.com", "12341234", "USER", 2), ("user", "user@user.com", "12341234", "USER", 2), ("admin", "admin@admin.com", "12341234", "ADMIN", 2);
 
-CREATE TABLE IF NOT EXISTS category (
+CREATE TABLE IF NOT EXISTS categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL
 );
 
-INSERT INTO category (name) VALUES ("hot drinks"), ("cold drinks");
+INSERT INTO categories (name) VALUES ("hot drinks"), ("cold drinks");
 
-CREATE TABLE IF NOT EXISTS product (
+CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(150) NOT NULL,
+  name VARCHAR(150) UNIQUE NOT NULL,
   price DECIMAL(10,2) NOT NULL,
   product_picture_url VARCHAR(255),
   created_at DATETIME NOT NULL DEFAULT NOW(),
   status ENUM("AVAILABLE", "UNAVAILABLE") DEFAULT "AVAILABLE",
   category_id INT NOT NULL,
-  FOREIGN KEY (category_id) REFERENCES category(id)
+  FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
-INSERT INTO product (name, price, category_id) VALUES ("tea", 10, 1), ("cola", 5, 2);
+INSERT INTO products (name, price, category_id) VALUES ("tea", 10, 1), ("cola", 5, 2);
 
-CREATE TABLE IF NOT EXISTS `order` (
+CREATE TABLE IF NOT EXISTS `orders` (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   room_id INT NOT NULL,
+  total_price DECIMAL(10, 2) NOT NULL,
   notes TEXT,
   status ENUM("DONE", "PROCESSING", "BEING_DELIVERED") NOT NULL DEFAULT 'PROCESSING',
   created_at DATETIME DEFAULT NOW(),
-  FOREIGN KEY (user_id) REFERENCES user(id),
-  FOREIGN KEY (room_id) REFERENCES room(id)
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
-INSERT INTO `order` (user_id, room_id) VALUES (1, 1), (2, 3);
+INSERT INTO `orders` (user_id, room_id, total_price) VALUES (1, 1, 200), (2, 3, 20);
 
 CREATE TABLE IF NOT EXISTS order_items (
   order_id INT NOT NULL,
   product_id INT NOT NULL,
   quantity INT NOT NULL,
+  unit_price DECIMAL(10, 2) NOT NULL,
+  item_total DECIMAL(10, 2) NOT NULL,  
   PRIMARY KEY (order_id, product_id)
 );
 
-INSERT INTO order_items (order_id, product_id, quantity) VALUES (1, 1, 3), (1, 2, 4), (2, 1, 5);
-
+INSERT INTO order_items (order_id, product_id, unit_price, item_total, quantity) VALUES (1, 1, 10, 10, 3), (1, 2, 20, 40, 4), (2, 1, 15, 15, 5);
 -- INSERT INTO rooms (name) VALUES
 --   ('Room 101'),
 --   ('Room 102'),
