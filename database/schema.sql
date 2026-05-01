@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
   FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
-INSERT INTO users (name, email, password, role, room_id) VALUES ("marwan", "marwan@ashraf.com", "12341234", "ADMIN", 1), ("ashraf", "ashraf@marwan.com", "12341234", "USER", 1), ("mohamed", "mohamed@ashraf.com", "12341234", "USER", 2);
+INSERT INTO users (name, email, password, role, room_id) VALUES ("marwan", "marwan@ashraf.com", "12341234", "ADMIN", 1), ("ashraf", "ashraf@marwan.com", "12341234", "USER", 1), ("mohamed", "mohamed@ashraf.com", "12341234", "USER", 2), ("user", "user@user.com", "12341234", "USER", 2), ("admin", "admin@admin.com", "12341234", "ADMIN", 2);
 
 CREATE TABLE IF NOT EXISTS categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -32,7 +32,7 @@ INSERT INTO categories (name) VALUES ("hot drinks"), ("cold drinks");
 
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(150) NOT NULL,
+  name VARCHAR(150) UNIQUE NOT NULL,
   price DECIMAL(10,2) NOT NULL,
   product_picture_url VARCHAR(255),
   created_at DATETIME NOT NULL DEFAULT NOW(),
@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   room_id INT NOT NULL,
+  total_price DECIMAL(10, 2) NOT NULL,
   notes TEXT,
   status ENUM("DONE", "PROCESSING", "BEING_DELIVERED") NOT NULL DEFAULT 'PROCESSING',
   created_at DATETIME DEFAULT NOW(),
@@ -54,17 +55,18 @@ CREATE TABLE IF NOT EXISTS `orders` (
   FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
-INSERT INTO `orders` (user_id, room_id) VALUES (1, 1), (2, 3);
+INSERT INTO `orders` (user_id, room_id, total_price) VALUES (1, 1, 200), (2, 3, 20);
 
 CREATE TABLE IF NOT EXISTS order_items (
   order_id INT NOT NULL,
   product_id INT NOT NULL,
   quantity INT NOT NULL,
+  unit_price DECIMAL(10, 2) NOT NULL,
+  item_total DECIMAL(10, 2) NOT NULL,  
   PRIMARY KEY (order_id, product_id)
 );
 
-INSERT INTO order_items (order_id, product_id, quantity) VALUES (1, 1, 3), (1, 2, 4), (2, 1, 5);
-
+INSERT INTO order_items (order_id, product_id, unit_price, item_total, quantity) VALUES (1, 1, 10, 10, 3), (1, 2, 20, 40, 4), (2, 1, 15, 15, 5);
 -- INSERT INTO rooms (name) VALUES
 --   ('Room 101'),
 --   ('Room 102'),
