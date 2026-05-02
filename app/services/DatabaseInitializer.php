@@ -86,7 +86,7 @@ class DatabaseInitializer {
                 room_id INT NOT NULL,
                 total_price DECIMAL(10,2) NOT NULL DEFAULT 0,
                 notes TEXT,
-                status ENUM('DONE', 'PROCESSING', 'BEING_DELIVERED', 'CANCELED') NOT NULL DEFAULT 'PROCESSING',
+                status ENUM('DONE', 'PROCESSING', 'BEING_DELIVERED') NOT NULL DEFAULT 'PROCESSING',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id),
                 FOREIGN KEY (room_id) REFERENCES rooms(id)

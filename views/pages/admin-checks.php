@@ -1,22 +1,6 @@
 <?php
 ob_start();
 
-function order_status_badge($status) {
-  $normalized = strtoupper(trim((string)$status));
-  switch ($normalized) {
-    case 'PROCESSING':
-      return ['Processing', 'warning'];
-    case 'BEING_DELIVERED':
-      return ['Out for delivery', 'info'];
-    case 'DONE':
-      return ['Done', 'success'];
-    case 'CANCELED':
-      return ['Canceled', 'danger'];
-    default:
-      return [$status, 'secondary'];
-  }
-}
-
 $baseQuery = [
     'from' => $fromDate,
     'to' => $toDate,
@@ -125,11 +109,8 @@ function checks_url($params) {
                                   <tr>
                                     <td><?php echo htmlspecialchars($order['created_at']); ?></td>
                                     <td>$<?php echo number_format((float)$order['total_price'], 2); ?></td>
-                                    <?php
-                                      [$statusLabel, $statusClass] = order_status_badge($order['status']);
-                                    ?>
-                                    <td><span class="badge bg-<?php echo $statusClass; ?>">
-                          <?php echo htmlspecialchars($statusLabel); ?>
+                                    <td><span class="badge bg-<?php echo $order['status'] === 'Processing' ? 'warning' : ($order['status'] === 'Out for delivery' ? 'info' : ($order['status'] === 'Done' ? 'success' : 'secondary')); ?>">
+                          <?php echo $order['status']; ?>
                         </span></td>
                                     <td class="text-end">
                                       <a class="btn btn-sm btn-outline-secondary" href="<?php echo checks_url($orderParams); ?>">
@@ -207,10 +188,7 @@ function checks_url($params) {
         <div class="mb-3">
           <div class="text-muted small">Order #<?php echo $selectedOrder['id']; ?></div>
           <div class="text-muted small">Placed: <?php echo htmlspecialchars($selectedOrder['created_at']); ?></div>
-          <?php
-            [$detailStatusLabel, $detailStatusClass] = order_status_badge($selectedOrder['status']);
-          ?>
-          <div class="text-muted small">Status: <?php echo htmlspecialchars($detailStatusLabel); ?></div>
+          <div class="text-muted small">Status: <?php echo htmlspecialchars($selectedOrder['status']); ?></div>
         </div>
         <?php if (empty($selectedItems)): ?>
           <div class="text-muted">No order items found.</div>
