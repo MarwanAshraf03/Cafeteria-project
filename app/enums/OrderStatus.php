@@ -5,5 +5,6 @@ enum OrderStatus: string
     case Done = "DONE";
     case Processing = "PROCESSING";
     case Being_Delivered = "BEING_DELIVERED";
+    case Canceled = "CANCELED";
 }
 ?>

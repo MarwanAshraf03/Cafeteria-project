@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Role;
+use App\Enums\OrderStatus;
 use App\Models\User;
 use App\Services\Auth;
 
@@ -115,7 +116,7 @@ class OrderController {
             $user_id = $_POST['user_id'];
         }
 
-        $orderId = Order::create($user_id ?? $user->id, $roomId, $notes, 'Processing', $total);
+        $orderId = Order::create($user_id ?? $user->id, $roomId, $notes, OrderStatus::Processing->value, $total);
         OrderItem::addItems($orderId, $orderItems);
 
         header('Location: ' . base_path('/home'));
@@ -162,8 +163,8 @@ class OrderController {
         }
 
         $order = Order::findForUser($orderId, $user->id);
-        if ($order && $order['status'] === 'Processing') {
-            Order::updateStatus($orderId, 'Canceled');
+        if ($order && strtoupper($order['status']) === OrderStatus::Processing->value) {
+            Order::updateStatus($orderId, OrderStatus::Canceled->value);
         }
 
         header('Location: ' . base_path('orders'));
@@ -243,6 +244,13 @@ class OrderController {
             $order['items'] = OrderItem::forOrder($order['id']);
             $ordersWithItems[] = $order;
         }
+
+        $canceledOrders = Order::getCanceledOrders();
+        $canceledOrdersWithItems = [];
+        foreach ($canceledOrders as $order) {
+            $order['items'] = OrderItem::forOrder($order['id']);
+            $canceledOrdersWithItems[] = $order;
+        }
         
         require __DIR__ . '/../../views/pages/admin/orders.php';
     }
@@ -260,7 +268,7 @@ class OrderController {
 
         $orderId = isset($_POST['order_id']) ? intval($_POST['order_id']) : 0;
         if ($orderId > 0) {
-            Order::updateStatus($orderId, 'DONE');
+            Order::updateStatus($orderId, OrderStatus::Done->value);
         }
         
         header('Location: ' . base_path('admin/orders'));
