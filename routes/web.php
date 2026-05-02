@@ -4,12 +4,10 @@ use App\Services\Router;
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/OrderController.php';
 require_once __DIR__ . '/../app/controllers/ProductController.php';
-require_once __DIR__ . '/../app/controllers/CategoryController.php';
 
 $userController = new UserController();
 $orderController = new OrderController();
 $productController = new ProductController();
-$categoryController = new CategoryController();
 
 $router = new Router();
 $router->add('/', 'GET', function () use ($orderController) {
@@ -30,16 +28,16 @@ $router->add('/user/create', 'POST', function () use ($userController) {
 $router->add('/orders', 'GET', function () use ($orderController) {
     $orderController->history();
 });
-$router->add('/admin/checks', 'GET', function () use ($orderController) {
+$router->add('/admin/checks', 'GET',function()use($orderController){
     $orderController->adminChecks();
 });
-$router->add('/admin/orders', 'GET', function () use ($orderController) {
+$router->add('/admin/orders', 'GET', function() use ($orderController) {
     $orderController->adminOrders();
 });
-$router->add('/admin/orders/deliver', 'POST', function () use ($orderController) {
+$router->add('/admin/orders/deliver', 'POST', function() use ($orderController) {
     $orderController->deliver();
 });
-$router->add('/orders/confirm', 'POST', function () use ($orderController) {
+$router->add('/orders/confirm', 'POST',function()use($orderController){
     $orderController->store();
 });
 $router->add('/orders/cancel', 'POST', function () use ($orderController) {
@@ -47,6 +45,20 @@ $router->add('/orders/cancel', 'POST', function () use ($orderController) {
 });
 $router->add('/logout', 'GET', function () use ($userController) {
     $userController->logout();
+});
+
+//------------------------------ADMIN USERS------------------------------
+$router->add('/admin/users', 'GET', function () use ($userController) {
+    $userController->listUsers();
+});
+$router->add('/admin/users', 'PUT', function () use ($userController) {
+    $userController->updateUser();
+});
+$router->add('/admin/users/edit', 'GET', function () use ($userController) {
+    $userController->editUser();
+});
+$router->add('/admin/users/delete', 'POST', function () use ($userController) {
+    $userController->deleteUser();
 });
 
 //------------------------------PRODUCTS------------------------------
@@ -78,16 +90,6 @@ $router->add('/products/edit', 'GET', function () use ($productController) {
 $router->add('/products/availability', 'POST', function () use ($productController) {
     $productController->availability();
 });
-//------------------------------CATEGORIES------------------------------
-// create a category
-$router->add('/categories', 'POST', function () use ($categoryController) {
-    $categoryController->create();
-});
-// get the add category page
-$router->add('/categories/create', 'GET', function () use ($categoryController) {
-    $categoryController->add();
-});
-
 return $router;
 
 ?>

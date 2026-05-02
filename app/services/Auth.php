@@ -21,7 +21,11 @@ class Auth
 
     public static function role()
     {
-        return Role::tryFrom(self::user()->role);
+        $user = self::user();
+        if ($user === null) {
+            return null;
+        }
+        return Role::tryFrom($user->role);
     }
 
     public static function check()

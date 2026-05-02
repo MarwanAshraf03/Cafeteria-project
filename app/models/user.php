@@ -79,4 +79,19 @@ class User
         $stmt = Database::getInstance()->getConnection()->prepare("DELETE FROM users WHERE id = ?");
         $stmt->execute([$this->id]);
     }
+
+    public static function updateUser($id, User $data) {
+        $stmt = Database::getInstance()->getConnection()->prepare(
+            "UPDATE users SET name = ?, email = ?, password = ?, role = ?, room = ?, profile_picture_link = ? WHERE id = ?"
+        );
+        $stmt->execute([
+            $data->name,
+            $data->email,
+            $data->password,
+            $data->role,
+            $data->room,
+            $data->profile_picture_link ?? '',
+            $id,
+        ]);
+    }
 }

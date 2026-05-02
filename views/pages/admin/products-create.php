@@ -1,5 +1,5 @@
 <?php
-require_once("core/globals.php");
+require_once(__DIR__ . '/../../../core/globals.php');
 ob_start();
 ?>
 <div class="mb-4">
@@ -17,11 +17,14 @@ ob_start();
                     📷
                 </div>
                 <div>
+                    <!-- <button class="btn btn-outline-secondary btn-sm">Choose File</button> -->
                     <input type="file" name="image">
                     <div class="text-muted small">Max 2MB</div>
                 </div>
             </div>
         </div>
+
+        <!-- Fields -->
         <div class="col-md-6">
             <label class="form-label">Product Name</label>
             <input class="form-control" type="text" name="name">
@@ -29,22 +32,22 @@ ob_start();
 
         <div class="col-md-6">
             <label class="form-label">Price</label>
-            <input class="form-control" min="1" type="number" step="0.01" name="price">
+            <input class="form-control" min="1" type="number" name="price">
         </div>
 
         <div class="col-md-6">
             <label class="form-label">Category</label>
+            <!-- <input class="form-control" type="password" name="password"> -->
             <select name="category_id" id="category_id">
                 <?php foreach ($categories as $category): ?>
                     <option value="<?= htmlspecialchars($category['id']) ?>"><?= htmlspecialchars($category['name']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
-            <a href="/categories/create">Create A Category</a>
         </div>
         <div class="col-12 text-end">
-            <button type="reset" class="btn btn-outline-secondary me-2">Cancel</button>
-            <button type="submit" class="btn btn-success">Add Product</button>
+            <button class="btn btn-outline-secondary me-2">Cancel</button>
+            <button class="btn btn-success">Add User</button>
         </div>
     </form>
 </div>

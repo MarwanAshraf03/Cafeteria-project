@@ -50,6 +50,12 @@ $isAdmin = $userRole !== '' && strtoupper((string)$userRole) === 'ADMIN';
         </a>
       </li>
       <li class="nav-item">
+        <a href="<?php echo base_path('admin/users'); ?>" class="nav-link d-flex align-items-center <?php if ($activePage == 'users')
+             echo 'active'; ?>">
+          Users
+        </a>
+      </li>
+      <li class="nav-item">
         <a href="<?php echo base_path('user/create'); ?>" class="nav-link d-flex align-items-center <?php if ($activePage == 'create-user')
              echo 'active'; ?>">
           Add New User

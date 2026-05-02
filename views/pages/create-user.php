@@ -1,5 +1,5 @@
 <?php
-require_once("core/globals.php");
+require_once(__DIR__ . '/../../core/globals.php');
 ob_start();
 ?>
   <div class="mb-4">
@@ -51,8 +51,8 @@ ob_start();
       <div class="col-md-6">
         <label class="form-label">Role</label>
         <select class="form-select" name="role">
-          <option value="guest">Guest</option>
-          <option value="admin">Admin</option>
+          <option value="USER">User</option>
+          <option value="ADMIN">Admin</option>
         </select>
       </div>
       <div class="col-12 text-end">
