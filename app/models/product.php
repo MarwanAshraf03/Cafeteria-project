@@ -26,6 +26,14 @@ class Product
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public static function findById($id)
+    {
+        $stmt = Database::getInstance()->getConnection()->prepare("SELECT * FROM products WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
     public static function create($product)
     {
         $stmt = Database::getInstance()->getConnection()->prepare("INSERT INTO products (name, price, image_url, category_id) VALUES (?, ?, ?, ?)");

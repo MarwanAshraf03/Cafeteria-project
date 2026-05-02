@@ -1,12 +1,10 @@
 <?php
 
-use App\Enums\Role;
-use App\Services\Auth;
-
 require_once __DIR__ . '/../models/product.php';
 require_once __DIR__ . '/../models/room.php';
 require_once __DIR__ . '/../models/order.php';
 require_once __DIR__ . '/../models/order_item.php';
+require_once __DIR__ . '/../models/category.php';
 require_once __DIR__ . '/../services/Auth.php';
 
 class ProductController
@@ -14,14 +12,12 @@ class ProductController
     public function home()
     {
         $products = Product::all();
-
         require __DIR__ . '/../../views/pages/products.php';
     }
 
     public static function destroy()
     {
         $product_id = $_GET['id'];
-        // $product_id = $product_id[count($product_id) - 1];
         Product::delete($product_id);
         header('Location: ' . base_path('products'));
 
@@ -34,42 +30,73 @@ class ProductController
         header('Location: ' . base_path('products'));
     }
 
-    // update product
+    //# update product
     public static function update()
     {
+        $file = $_FILES['image'];
+
+        if ($file['error'] === UPLOAD_ERR_OK) {
+
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $newFileName = uniqid('product_', true) . '.' . $extension;
+
+            $uploadDir = __DIR__ . '/../../storage/product-images/';
+
+            $destination = $uploadDir . $newFileName;
+
+            if (move_uploaded_file($file['tmp_name'], $destination)) {
+            } else {
+            }
+        }
+        // var_dump($_POST['image_url']);
         $product_id = $_GET['id'];
-        Product::update($product_id, $product_id);
+        $product['name'] = $_POST['name'];
+        $product['price'] = $_POST['price'];
+        $product['category_id'] = $_POST['category_id'];
+        $product['image_url'] = $newFileName ?? $_POST['image_url'];
+        // var_dump($product);
+        Product::update($product_id, $product);
         header('Location: ' . base_path('products'));
     }
-    // create a product
+    //# create a product
     public static function create()
     {
+        $file = $_FILES['image'];
+
+        if ($file['error'] === UPLOAD_ERR_OK) {
+
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $newFileName = uniqid('product_', true) . '.' . $extension;
+
+            $uploadDir = __DIR__ . '/../../storage/product-images/';
+
+            $destination = $uploadDir . $newFileName;
+
+            if (move_uploaded_file($file['tmp_name'], $destination)) {
+            } else {
+            }
+        }
+        $product = [];
+        $product['name'] = $_POST['name'];
+        $product['price'] = $_POST['price'];
+        $product['category_id'] = $_POST['category_id'];
+        $product['image_url'] = $newFileName;
+        Product::create($product);
+        header('Location: ' . base_path('products'));
     }
-    // get the add product page
+    //# get the add product page
     public static function add()
     {
-        header('Location: ' . base_path('create-product'));
+        $categories = Category::all();
+        require __DIR__ . '/../../views/pages/admin/products-create.php';
     }
-    // get the update product page
+    //# get the update product page
     public static function edit()
     {
-        $product = Product::findByIds($_GET['id']);
-        header('Location: ' . base_path('update-product'));
+        $product = Product::findById($_GET['id']);
+        $categories = Category::all();
+        require __DIR__ . '/../../views/pages/admin/products-edit.php';
     }
 
 }
 
-// // get all products
-// public static function home() {}
-// // delete product
-// public static function destroy() {}
-// // update product
-// public static function update() {}
-// // create a product
-// public static function create() {}
-// // get the add product page
-// public static function add() {}
-// // get the update product page
-// public static function edit() {}
-// // make product available or unavailable
-// public static function availability() {}
