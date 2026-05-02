@@ -1,10 +1,9 @@
 <?php
 
 use App\Models\User;
-use App\Models\Room;
 
 require_once __DIR__ . '/../models/user.php';
-require_once __DIR__ . '/../models/Room.php';
+require_once __DIR__ . '/../models/room.php';
 require_once __DIR__ . '/../services/Auth.php';
 
 class UserController
@@ -12,18 +11,53 @@ class UserController
     public function createUserForm()
     {
         $rooms = Room::all();
+        $errors = [];
+        $old = [];
         require __DIR__ . '/../../views/pages/create-user.php';
     }
 
     public function store()
     {
-        $name = $_POST['name'];
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $role = $_POST['role'];
-        $room = $_POST['room'];
-        $profile_picture_link = "";
-        $user = new User(null, $name, $email, $password, $role, $room, $profile_picture_link);
+        $rooms = Room::all();
+        $validRoomNames = array_column($rooms, 'name');
+
+        $name     = trim($_POST['name'] ?? '');
+        $email    = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirm  = $_POST['confirm_password'] ?? '';
+        $role     = $_POST['role'] ?? '';
+        $room     = $_POST['room'] ?? '';
+
+        $old = compact('name', 'email', 'role', 'room');
+        $errors = [];
+
+        if (strlen($name) < 2) {
+            $errors['name'] = 'Name is required and must be at least 2 characters.';
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Please enter a valid email address.';
+        } elseif (User::findByEmail($email)) {
+            $errors['email'] = 'This email is already registered.';
+        }
+        if (strlen($password) < 6) {
+            $errors['password'] = 'Password must be at least 6 characters.';
+        }
+        if ($confirm !== $password) {
+            $errors['confirm_password'] = 'Passwords do not match.';
+        }
+        if (!in_array($room, $validRoomNames, true)) {
+            $errors['room'] = 'Please select a valid room.';
+        }
+        if (!in_array($role, ['USER', 'ADMIN'], true)) {
+            $errors['role'] = 'Please select a valid role.';
+        }
+
+        if (!empty($errors)) {
+            require __DIR__ . '/../../views/pages/create-user.php';
+            return;
+        }
+
+        $user = new User(null, $name, $email, $password, $role, $room, '');
         $user->save();
         header('Location: ' . base_path('admin/users'));
     }
@@ -66,6 +100,7 @@ class UserController
             return;
         }
         $rooms = Room::all();
+        $errors = [];
         require __DIR__ . '/../../views/pages/admin/users-edit.php';
     }
 
@@ -82,19 +117,77 @@ class UserController
             return;
         }
 
-        $editUser->name  = trim($_POST['name'] ?? $editUser->name);
-        $editUser->email = trim($_POST['email'] ?? $editUser->email);
-        $editUser->role  = $_POST['role'] ?? $editUser->role;
-        $editUser->room  = trim($_POST['room'] ?? $editUser->room);
+        $rooms = Room::all();
+        $validRoomNames = array_column($rooms, 'name');
 
-        $newPassword = trim($_POST['password'] ?? '');
-        if ($newPassword !== '') {
-            $editUser->password = $newPassword;
+        $name        = trim($_POST['name'] ?? '');
+        $email       = trim($_POST['email'] ?? '');
+        $password    = $_POST['password'] ?? '';
+        $confirm     = $_POST['confirm_password'] ?? '';
+        $role        = $_POST['role'] ?? '';
+        $room        = $_POST['room'] ?? '';
+
+        $errors = [];
+
+        if (strlen($name) < 2) {
+            $errors['name'] = 'Name is required and must be at least 2 characters.';
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Please enter a valid email address.';
+        } elseif ($email !== $editUser->email) {
+            $existing = User::findByEmail($email);
+            if ($existing && $existing->id != $id) {
+                $errors['email'] = 'This email is already registered to another user.';
+            }
+        }
+        if ($password !== '') {
+            if (strlen($password) < 6) {
+                $errors['password'] = 'Password must be at least 6 characters.';
+            }
+            if ($confirm !== $password) {
+                $errors['confirm_password'] = 'Passwords do not match.';
+            }
+        }
+        if (!in_array($room, $validRoomNames, true)) {
+            $errors['room'] = 'Please select a valid room.';
+        }
+        if (!in_array($role, ['USER', 'ADMIN'], true)) {
+            $errors['role'] = 'Please select a valid role.';
         }
 
+        // Validate uploaded image
         $file = $_FILES['profile_image'] ?? null;
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
-            $extension  = pathinfo($file['name'], PATHINFO_EXTENSION);
+            if ($file['size'] > 2 * 1024 * 1024) {
+                $errors['profile_image'] = 'Image must be under 2MB.';
+            }
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($file['type'], $allowedTypes, true)) {
+                $errors['profile_image'] = 'Only JPG, PNG, GIF or WebP images are allowed.';
+            }
+        }
+
+        if (!empty($errors)) {
+            // Re-apply posted values so form retains input
+            $editUser->name  = $name;
+            $editUser->email = $email;
+            $editUser->role  = $role;
+            $editUser->room  = $room;
+            require __DIR__ . '/../../views/pages/admin/users-edit.php';
+            return;
+        }
+
+        $editUser->name  = $name;
+        $editUser->email = $email;
+        $editUser->role  = $role;
+        $editUser->room  = $room;
+
+        if ($password !== '') {
+            $editUser->password = $password;
+        }
+
+        if ($file && $file['error'] === UPLOAD_ERR_OK) {
+            $extension   = pathinfo($file['name'], PATHINFO_EXTENSION);
             $newFileName = uniqid('user_', true) . '.' . $extension;
             $uploadDir   = __DIR__ . '/../../storage/user-images/';
             if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {

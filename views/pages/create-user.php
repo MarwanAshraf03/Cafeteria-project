@@ -6,9 +6,21 @@ ob_start();
   <h3 style="font-family:'Noto Serif'">Add New User</h3>
   <p class="text-muted">Register a new guest or staff member</p>
 </div>
+
+<?php if (!empty($errors)): ?>
+  <div class="alert alert-danger">
+    <ul class="mb-0">
+      <?php foreach ($errors as $error): ?>
+        <li><?php echo htmlspecialchars($error); ?></li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+<?php endif; ?>
+
 <div class="card card-custom p-4 mb-4">
-  <form id="createUserForm" class="row g-4" action="<?php echo base_path('user/create'); ?>" method="POST"
-    enctype="multipart/form-data" novalidate>
+  <form id="createUserForm" class="row g-4"
+    action="<?php echo base_path('user/create'); ?>"
+    method="POST" enctype="multipart/form-data" novalidate>
 
     <!-- Profile Picture -->
     <div class="col-12">
@@ -17,13 +29,13 @@ ob_start();
         <img id="avatarPreview" src="" alt="Preview"
           class="rounded-circle border shadow-sm d-none"
           style="width:120px;height:120px;object-fit:cover;">
-        <div id="avatarPlaceholder" class="rounded-circle bg-light border d-flex align-items-center justify-content-center"
+        <div id="avatarPlaceholder"
+          class="rounded-circle bg-light border d-flex align-items-center justify-content-center"
           style="width:120px;height:120px;font-size:2.5rem;">📷</div>
         <div>
           <input type="file" id="profileImageInput" name="profile_image" accept="image/*"
             class="form-control form-control-sm" style="max-width:260px;">
-          <div id="imageError" class="text-danger small mt-1 d-none">Image must be under 2MB.</div>
-          <div class="text-muted small mt-1">Max 2MB · Optional</div>
+          <div class="text-muted small mt-1">Max 2MB · JPG, PNG, GIF, WebP · Optional</div>
         </div>
       </div>
     </div>
@@ -31,53 +43,78 @@ ob_start();
     <!-- Full Name -->
     <div class="col-md-6">
       <label class="form-label">Full Name <span class="text-danger">*</span></label>
-      <input class="form-control" type="text" id="name" name="name" required minlength="2" placeholder="e.g. John Smith">
-      <div class="invalid-feedback">Name is required and must be at least 2 characters.</div>
+      <input class="form-control <?php echo isset($errors['name']) ? 'is-invalid' : ''; ?>"
+        type="text" name="name"
+        value="<?php echo htmlspecialchars($old['name'] ?? ''); ?>"
+        required minlength="2" placeholder="e.g. John Smith">
+      <div class="invalid-feedback">
+        <?php echo $errors['name'] ?? 'Name is required and must be at least 2 characters.'; ?>
+      </div>
     </div>
 
     <!-- Email -->
     <div class="col-md-6">
       <label class="form-label">Email <span class="text-danger">*</span></label>
-      <input class="form-control" type="email" id="email" name="email" required placeholder="e.g. john@example.com">
-      <div class="invalid-feedback">Please enter a valid email address.</div>
+      <input class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>"
+        type="email" name="email"
+        value="<?php echo htmlspecialchars($old['email'] ?? ''); ?>"
+        required placeholder="e.g. john@example.com">
+      <div class="invalid-feedback">
+        <?php echo $errors['email'] ?? 'Please enter a valid email address.'; ?>
+      </div>
     </div>
 
     <!-- Password -->
     <div class="col-md-6">
       <label class="form-label">Password <span class="text-danger">*</span></label>
-      <input class="form-control" type="password" id="password" name="password" required minlength="6" placeholder="Min. 6 characters">
-      <div class="invalid-feedback">Password is required and must be at least 6 characters.</div>
+      <input class="form-control <?php echo isset($errors['password']) ? 'is-invalid' : ''; ?>"
+        type="password" id="password" name="password"
+        required minlength="6" placeholder="Min. 6 characters">
+      <div class="invalid-feedback">
+        <?php echo $errors['password'] ?? 'Password must be at least 6 characters.'; ?>
+      </div>
     </div>
 
     <!-- Confirm Password -->
     <div class="col-md-6">
       <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
-      <input class="form-control" type="password" id="confirmPassword" name="confirm_password" required placeholder="Re-enter password">
-      <div class="invalid-feedback">Passwords do not match.</div>
+      <input class="form-control <?php echo isset($errors['confirm_password']) ? 'is-invalid' : ''; ?>"
+        type="password" id="confirmPassword" name="confirm_password"
+        required placeholder="Re-enter password">
+      <div class="invalid-feedback">
+        <?php echo $errors['confirm_password'] ?? 'Passwords do not match.'; ?>
+      </div>
     </div>
 
     <!-- Room -->
     <div class="col-md-6">
       <label class="form-label">Room <span class="text-danger">*</span></label>
-      <select class="form-select" id="room" name="room" required>
+      <select class="form-select <?php echo isset($errors['room']) ? 'is-invalid' : ''; ?>"
+        name="room" required>
         <option value="">-- Select Room --</option>
         <?php foreach ($rooms as $room): ?>
-          <option value="<?php echo htmlspecialchars($room->name); ?>">
-            <?php echo htmlspecialchars($room->name); ?>
+          <option value="<?php echo htmlspecialchars($room['name']); ?>"
+            <?php echo ($old['room'] ?? '') === $room['name'] ? 'selected' : ''; ?>>
+            <?php echo htmlspecialchars($room['name']); ?>
           </option>
         <?php endforeach; ?>
       </select>
-      <div class="invalid-feedback">Please select a room.</div>
+      <div class="invalid-feedback">
+        <?php echo $errors['room'] ?? 'Please select a room.'; ?>
+      </div>
     </div>
 
     <!-- Role -->
     <div class="col-md-6">
       <label class="form-label">Role <span class="text-danger">*</span></label>
-      <select class="form-select" name="role" required>
-        <option value="USER">User</option>
-        <option value="ADMIN">Admin</option>
+      <select class="form-select <?php echo isset($errors['role']) ? 'is-invalid' : ''; ?>"
+        name="role" required>
+        <option value="USER" <?php echo ($old['role'] ?? 'USER') === 'USER' ? 'selected' : ''; ?>>User</option>
+        <option value="ADMIN" <?php echo ($old['role'] ?? '') === 'ADMIN' ? 'selected' : ''; ?>>Admin</option>
       </select>
-      <div class="invalid-feedback">Please select a role.</div>
+      <div class="invalid-feedback">
+        <?php echo $errors['role'] ?? 'Please select a role.'; ?>
+      </div>
     </div>
 
     <div class="col-12 text-end">
@@ -95,20 +132,18 @@ ob_start();
   const profileImageInput = document.getElementById('profileImageInput');
   const avatarPreview = document.getElementById('avatarPreview');
   const avatarPlaceholder = document.getElementById('avatarPlaceholder');
-  const imageError = document.getElementById('imageError');
 
-  // Live image preview + size check
   profileImageInput.addEventListener('change', function () {
     const file = this.files[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
-      imageError.classList.remove('d-none');
+      this.classList.add('is-invalid');
       this.value = '';
       avatarPreview.classList.add('d-none');
       avatarPlaceholder.classList.remove('d-none');
       return;
     }
-    imageError.classList.add('d-none');
+    this.classList.remove('is-invalid');
     const reader = new FileReader();
     reader.onload = function (e) {
       avatarPreview.src = e.target.result;
@@ -118,16 +153,10 @@ ob_start();
     reader.readAsDataURL(file);
   });
 
-  // Form submit validation
   form.addEventListener('submit', function (e) {
     let valid = true;
+    if (!form.checkValidity()) valid = false;
 
-    // Bootstrap native validation
-    if (!form.checkValidity()) {
-      valid = false;
-    }
-
-    // Confirm password must match
     if (confirmInput.value !== passwordInput.value) {
       confirmInput.classList.add('is-invalid');
       valid = false;
@@ -135,41 +164,19 @@ ob_start();
       confirmInput.classList.remove('is-invalid');
     }
 
-    // Image size re-check
-    if (profileImageInput.files[0] && profileImageInput.files[0].size > 2 * 1024 * 1024) {
-      imageError.classList.remove('d-none');
-      valid = false;
-    }
-
-    if (!valid) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
+    if (!valid) { e.preventDefault(); e.stopPropagation(); }
     form.classList.add('was-validated');
   });
 
-  // Live confirm password match feedback
   confirmInput.addEventListener('input', function () {
-    if (this.value === passwordInput.value) {
-      this.classList.remove('is-invalid');
-      this.classList.add('is-valid');
-    } else {
-      this.classList.add('is-invalid');
-      this.classList.remove('is-valid');
-    }
+    this.classList.toggle('is-invalid', this.value !== passwordInput.value);
+    this.classList.toggle('is-valid', this.value === passwordInput.value && this.value !== '');
   });
 
-  // Clear confirm valid state when password changes
   passwordInput.addEventListener('input', function () {
     if (confirmInput.value !== '') {
-      if (confirmInput.value === this.value) {
-        confirmInput.classList.remove('is-invalid');
-        confirmInput.classList.add('is-valid');
-      } else {
-        confirmInput.classList.add('is-invalid');
-        confirmInput.classList.remove('is-valid');
-      }
+      confirmInput.classList.toggle('is-invalid', confirmInput.value !== this.value);
+      confirmInput.classList.toggle('is-valid', confirmInput.value === this.value);
     }
   });
 })();
