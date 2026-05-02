@@ -1,21 +1,5 @@
 <?php
     ob_start();
-
-    function order_status_badge($status) {
-      $normalized = strtoupper(trim((string)$status));
-      switch ($normalized) {
-        case 'PROCESSING':
-          return ['Processing', 'warning'];
-        case 'BEING_DELIVERED':
-          return ['Out for delivery', 'info'];
-        case 'DONE':
-          return ['Done', 'success'];
-        case 'CANCELED':
-          return ['Canceled', 'danger'];
-        default:
-          return [$status, 'secondary'];
-      }
-    }
 ?>
 <div class="d-flex flex-column gap-4">
   <div class="d-flex justify-content-between align-items-center">
@@ -64,11 +48,8 @@
                       <td>#<?php echo $order['id']; ?></td>
                       <td><?php echo $order['created_at']; ?></td>
                       <td>
-                        <?php
-                          [$statusLabel, $statusClass] = order_status_badge($order['status']);
-                        ?>
-                        <span class="badge bg-<?php echo $statusClass; ?>">
-                          <?php echo htmlspecialchars($statusLabel); ?>
+                        <span class="badge bg-<?php echo $order['status'] === 'Processing' ? 'warning' : ($order['status'] === 'Out for delivery' ? 'info' : ($order['status'] === 'Done' ? 'success' : 'secondary')); ?>">
+                          <?php echo $order['status']; ?>
                         </span>
                       </td>
                       <td>$<?php echo number_format($order['total_price'], 2); ?></td>
@@ -76,7 +57,7 @@
                         <a class="btn btn-sm btn-outline-primary" href="<?php echo base_path('orders'); ?>?from=<?php echo htmlspecialchars($fromDate); ?>&to=<?php echo htmlspecialchars($toDate); ?>&order_id=<?php echo $order['id']; ?>">
                           View
                         </a>
-                        <?php if (strtoupper($order['status']) === 'PROCESSING'): ?>
+                        <?php if ($order['status'] === 'Processing'): ?>
                           <form method="POST" action="<?php echo base_path('orders/cancel'); ?>" class="d-inline">
                             <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
                             <button class="btn btn-sm btn-outline-danger">Cancel</button>
@@ -101,10 +82,7 @@
             <div class="mb-3">
               <div class="text-muted small">Order #<?php echo $selectedOrder['id']; ?></div>
               <div class="text-muted small">Placed: <?php echo $selectedOrder['created_at']; ?></div>
-              <?php
-                [$detailStatusLabel, $detailStatusClass] = order_status_badge($selectedOrder['status']);
-              ?>
-              <div class="text-muted small">Status: <?php echo htmlspecialchars($detailStatusLabel); ?></div>
+              <div class="text-muted small">Status: <?php echo $selectedOrder['status']; ?></div>
             </div>
             <?php if (empty($selectedItems)): ?>
               <div class="text-muted">No items found.</div>
