@@ -225,4 +225,44 @@ class OrderController {
 
         require __DIR__ . '/../../views/pages/admin-checks.php';
     }
+
+    public function adminOrders() {
+        $user = \App\Services\Auth::user();
+        if (!$user) {
+            header('Location: ' . base_path('login'));
+            return;
+        }
+        if (strtoupper($user->role) !== 'ADMIN') {
+            header('Location: ' . base_path(''));
+            return;
+        }
+        
+        $pendingOrders = Order::getPendingOrders();
+        $ordersWithItems = [];
+        foreach ($pendingOrders as $order) {
+            $order['items'] = OrderItem::forOrder($order['id']);
+            $ordersWithItems[] = $order;
+        }
+        
+        require __DIR__ . '/../../views/pages/admin/orders.php';
+    }
+
+    public function deliver() {
+        $user = \App\Services\Auth::user();
+        if (!$user) {
+            header('Location: ' . base_path('login'));
+            return;
+        }
+        if (strtoupper($user->role) !== 'ADMIN') {
+            header('Location: ' . base_path(''));
+            return;
+        }
+
+        $orderId = isset($_POST['order_id']) ? intval($_POST['order_id']) : 0;
+        if ($orderId > 0) {
+            Order::updateStatus($orderId, 'DONE');
+        }
+        
+        header('Location: ' . base_path('admin/orders'));
+    }
 }

@@ -109,7 +109,9 @@ function checks_url($params) {
                                   <tr>
                                     <td><?php echo htmlspecialchars($order['created_at']); ?></td>
                                     <td>$<?php echo number_format((float)$order['total_price'], 2); ?></td>
-                                    <td><?php echo htmlspecialchars($order['status']); ?></td>
+                                    <td><span class="badge bg-<?php echo $order['status'] === 'Processing' ? 'warning' : ($order['status'] === 'Out for delivery' ? 'info' : ($order['status'] === 'Done' ? 'success' : 'secondary')); ?>">
+                          <?php echo $order['status']; ?>
+                        </span></td>
                                     <td class="text-end">
                                       <a class="btn btn-sm btn-outline-secondary" href="<?php echo checks_url($orderParams); ?>">
                                         View Details

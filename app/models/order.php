@@ -158,4 +158,17 @@ class Order {
         $stmt->execute($params);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public static function getPendingOrders() {
+        $query = "SELECT o.id, o.created_at, o.status, o.total_price, 
+                         u.name as user_name, r.name as room_name, r.extension
+                  FROM orders o
+                  JOIN users u ON o.user_id = u.id
+                  JOIN rooms r ON o.room_id = r.id
+                  WHERE UPPER(o.status) IN ('PROCESSING', 'BEING_DELIVERED')
+                  ORDER BY o.created_at DESC";
+        $stmt = Database::getInstance()->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

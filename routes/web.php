@@ -31,6 +31,12 @@ $router->add('/orders', 'GET', function () use ($orderController) {
 $router->add('/admin/checks', 'GET',function()use($orderController){
     $orderController->adminChecks();
 });
+$router->add('/admin/orders', 'GET', function() use ($orderController) {
+    $orderController->adminOrders();
+});
+$router->add('/admin/orders/deliver', 'POST', function() use ($orderController) {
+    $orderController->deliver();
+});
 $router->add('/orders/confirm', 'POST',function()use($orderController){
     $orderController->store();
 });

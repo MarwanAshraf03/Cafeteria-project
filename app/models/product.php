@@ -28,15 +28,15 @@ class Product
 
     public static function create($product)
     {
-        $stmt = Database::getInstance()->getConnection()->prepare("INSERT INTO products (name, price, product_picture_url, category_id) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$product['name'], $product['price'], $product['product_picture_url'], $product['category_id']]);
+        $stmt = Database::getInstance()->getConnection()->prepare("INSERT INTO products (name, price, image_url, category_id) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$product['name'], $product['price'], $product['image_url'], $product['category_id']]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public static function update($id, $product)
     {
-        $stmt = Database::getInstance()->getConnection()->prepare('UPDATE products SET WHERE id = ?');
-        $stmt->execute([$id, $product['name'], $product['price'], $product['product_picture_url'], $product['category_id'], $id]);
+        $stmt = Database::getInstance()->getConnection()->prepare('UPDATE products SET name = ?, price = ?, image_url = ?, category_id = ? WHERE id = ?');
+        $stmt->execute([$product['name'], $product['price'], $product['image_url'], $product['category_id'], $id]);
     }
 
     public static function delete($id)
