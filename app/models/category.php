@@ -15,6 +15,7 @@ class Category
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
     // public static function findByIds($ids)
     // {
     //     if (empty($ids)) {
@@ -34,12 +35,12 @@ class Category
     // }
 
 
-    // public static function create($product)
-    // {
-    //     $stmt = Database::getInstance()->getConnection()->prepare("INSERT INTO products (name, price, image_url, category_id) VALUES (?, ?, ?, ?)");
-    //     $stmt->execute([$product['name'], $product['price'], $product['image_url'], $product['category_id']]);
-    //     return $stmt->fetch(PDO::FETCH_ASSOC);
-    // }
+    public static function create($category)
+    {
+        $stmt = Database::getInstance()->getConnection()->prepare("INSERT INTO categories (name) VALUES (?)");
+        $stmt->execute([$category['name']]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     // public static function update($id, $product)
     // {

@@ -42,7 +42,7 @@ ob_start();
 
         <div class="col-md-6">
             <label class="form-label">Price</label>
-            <input class="form-control" min="1" type="number" name="price"
+            <input class="form-control" min="1" type="number" name="price" step="0.01"
                 value="<?= htmlspecialchars($product['price']) ?>" required>
         </div>
 
