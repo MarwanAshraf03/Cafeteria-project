@@ -1,5 +1,5 @@
 <?php
-require_once("core/globals.php");
+require_once(__DIR__ . '/../../../core/globals.php');
 ob_start();
 ?>
 <div class="mb-4">
@@ -42,7 +42,7 @@ ob_start();
 
         <div class="col-md-6">
             <label class="form-label">Price</label>
-            <input class="form-control" min="1" type="number" name="price" step="0.01"
+            <input class="form-control" min="1" type="number" name="price"
                 value="<?= htmlspecialchars($product['price']) ?>" required>
         </div>
 

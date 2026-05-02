@@ -5,7 +5,7 @@ class Database
 {
     private static $instance = null;
     private $connection;
-    private $host = "localhost:3306";
+    private $host = "127.0.0.1:3306";
     private $db_name = "cafeteria_demo";
     private $username = "root";
     private $password = "root";

@@ -1,5 +1,5 @@
 <?php
-require_once("core/globals.php");
+require_once(__DIR__ . '/../../core/globals.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -75,7 +75,7 @@ require_once("core/globals.php");
     </div>
   </div>
 </div>
-<?php require_once("views/components/footer.php") ?>
+<?php require_once(__DIR__ . '/../components/footer.php') ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
