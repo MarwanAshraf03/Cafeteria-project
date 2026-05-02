@@ -1,12 +1,20 @@
 <?php
 
 use App\Models\User;
+use App\Models\Room;
 
 require_once __DIR__ . '/../models/user.php';
+require_once __DIR__ . '/../models/Room.php';
 require_once __DIR__ . '/../services/Auth.php';
 
 class UserController
 {
+    public function createUserForm()
+    {
+        $rooms = Room::all();
+        require __DIR__ . '/../../views/pages/create-user.php';
+    }
+
     public function store()
     {
         $name = $_POST['name'];
@@ -57,6 +65,7 @@ class UserController
             header('Location: ' . base_path('admin/users'));
             return;
         }
+        $rooms = Room::all();
         require __DIR__ . '/../../views/pages/admin/users-edit.php';
     }
 

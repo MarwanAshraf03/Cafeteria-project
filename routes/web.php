@@ -21,7 +21,9 @@ $router->add('/login', 'POST', function () use ($userController) {
     $userController->login();
 });
 $router->add('/style', 'GET', 'style.css');
-$router->add('/user/create', 'GET', 'create-user.php');
+$router->add('/user/create', 'GET', function () use ($userController) {
+    $userController->createUserForm();
+});
 $router->add('/user/create', 'POST', function () use ($userController) {
     $userController->store();
 });
