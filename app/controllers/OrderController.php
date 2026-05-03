@@ -3,6 +3,7 @@
 use App\Enums\Role;
 use App\Enums\OrderStatus;
 use App\Models\User;
+use App\Models\Room;
 use App\Services\Auth;
 
 require_once __DIR__ . '/../models/product.php';

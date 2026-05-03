@@ -24,7 +24,6 @@ class Room
     {
         $stmt = Database::getInstance()->getConnection()->prepare("SELECT * FROM rooms ORDER BY name ASC");
         $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return array_map(fn($r) => new Room($r['id'], $r['name'], $r['extension']), $rows);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

@@ -7,14 +7,15 @@ ob_start();
   <p class="text-muted">Update user information and role.</p>
 </div>
 
-<?php if (!empty($errors)): ?>
-  <div class="alert alert-danger">
-    <ul class="mb-0">
-      <?php foreach ($errors as $error): ?>
-        <li><?php echo htmlspecialchars($error); ?></li>
-      <?php endforeach; ?>
-    </ul>
-  </div>
+<?php if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])): ?>
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            <?php foreach ($_SESSION['errors'] as $error): ?>
+                <li><?php echo htmlspecialchars($error); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php unset($_SESSION['errors']); ?>
 <?php endif; ?>
 
 <div class="card card-custom p-4 mb-4">
@@ -97,9 +98,8 @@ ob_start();
     <!-- Room -->
     <div class="col-md-6">
       <label class="form-label">Room <span class="text-danger">*</span></label>
-      <select class="form-select <?php echo isset($errors['room']) ? 'is-invalid' : ''; ?>"
-        name="room" required>
-        <option value="">-- Select Room --</option>
+      <select class="form-select" id="room" name="room" required>
+        <option value="" selected disabled>Select room</option>
         <?php foreach ($rooms as $room): ?>
           <option value="<?php echo htmlspecialchars($room['name']); ?>"
             <?php echo ($editUser->room ?? '') === $room['name'] ? 'selected' : ''; ?>>

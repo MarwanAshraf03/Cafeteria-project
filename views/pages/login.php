@@ -46,10 +46,23 @@ require_once(__DIR__ . '/../../core/globals.php');
         <h3 class="fw-bold" style="font-family: 'Noto Serif', serif;">Login</h3>
         <p class="text-muted">Welcome back to <?php echo app_name ?></p>
       </div>
-      <form action="<?php echo base_path('login'); ?>" method="post">
+      
+      <?php if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])): ?>
+          <div class="alert alert-danger">
+              <ul class="mb-0 text-start">
+                  <?php foreach ($_SESSION['errors'] as $error): ?>
+                      <li><?php echo htmlspecialchars($error); ?></li>
+                  <?php endforeach; ?>
+              </ul>
+          </div>
+          <?php unset($_SESSION['errors']); ?>
+      <?php endif; ?>
+
+      <form action="<?php echo base_path('login'); ?>" method="post" class="needs-validation" novalidate onsubmit="return validateLoginForm(event)">
         <div class="mb-4">
           <label class="form-label">Email Address</label>
-          <input type="email" class="form-control border-0 border-bottom rounded-0" name="email" placeholder="name@hotel.com" required>
+          <input type="email" class="form-control border-0 border-bottom rounded-0" name="email" id="loginEmail" placeholder="name@hotel.com" required>
+          <div class="invalid-feedback">Please enter a valid email address.</div>
         </div>
 
         <div class="mb-4">
@@ -57,7 +70,8 @@ require_once(__DIR__ . '/../../core/globals.php');
             <label class="form-label">Password</label>
             <a href="#" class="small text-decoration-none text-danger">Forgot?</a>
           </div>
-          <input type="password" class="form-control border-0 border-bottom rounded-0" name="password" placeholder="••••••••" required>
+          <input type="password" class="form-control border-0 border-bottom rounded-0" name="password" id="loginPassword" placeholder="••••••••" required minlength="6">
+          <div class="invalid-feedback">Password is required.</div>
         </div>
 
         <button class="btn btn-success w-100 py-3">
@@ -77,6 +91,17 @@ require_once(__DIR__ . '/../../core/globals.php');
 </div>
 <?php require_once(__DIR__ . '/../components/footer.php') ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function validateLoginForm(e) {
+  const form = e.target;
+  if (!form.checkValidity()) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  form.classList.add('was-validated');
+  return form.checkValidity();
+}
+</script>
 
 </body>
 </html>

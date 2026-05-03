@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Room;
 
 require_once __DIR__ . '/../models/user.php';
 require_once __DIR__ . '/../models/room.php';
@@ -18,61 +19,87 @@ class UserController
 
     public function store()
     {
-        $rooms = Room::all();
-        $validRoomNames = array_column($rooms, 'name');
-
-        $name     = trim($_POST['name'] ?? '');
-        $email    = trim($_POST['email'] ?? '');
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
-        $confirm  = $_POST['confirm_password'] ?? '';
-        $role     = $_POST['role'] ?? '';
-        $room     = $_POST['room'] ?? '';
-
-        $old = compact('name', 'email', 'role', 'room');
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        $role = $_POST['role'] ?? '';
+        $room = $_POST['room'] ?? '';
+        
         $errors = [];
 
-        if (strlen($name) < 2) {
-            $errors['name'] = 'Name is required and must be at least 2 characters.';
+        if (empty($name) || strlen($name) < 2) {
+            $errors[] = "Name is required and must be at least 2 characters.";
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Please enter a valid email address.';
-        } elseif (User::findByEmail($email)) {
-            $errors['email'] = 'This email is already registered.';
+            $errors[] = "A valid email address is required.";
         }
-        if (strlen($password) < 6) {
-            $errors['password'] = 'Password must be at least 6 characters.';
+        if (empty($password) || strlen($password) < 6) {
+            $errors[] = "Password is required and must be at least 6 characters.";
         }
-        if ($confirm !== $password) {
-            $errors['confirm_password'] = 'Passwords do not match.';
+        if ($password !== $confirmPassword) {
+            $errors[] = "Passwords do not match.";
         }
-        if (!in_array($room, $validRoomNames, true)) {
-            $errors['room'] = 'Please select a valid room.';
+        if (empty($role) || !in_array(strtoupper($role), ['ADMIN', 'USER'])) {
+            $errors[] = "A valid role is required.";
         }
-        if (!in_array($role, ['USER', 'ADMIN'], true)) {
-            $errors['role'] = 'Please select a valid role.';
+        if (empty($room)) {
+            $errors[] = "Room selection is required.";
+        }
+
+        $profile_picture_link = "";
+        $file = $_FILES['profile_image'] ?? null;
+        if ($file && $file['error'] === UPLOAD_ERR_OK) {
+            if ($file['size'] > 2 * 1024 * 1024) {
+                $errors[] = "Image size cannot exceed 2MB.";
+            } else {
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $newFileName = uniqid('user_', true) . '.' . $extension;
+                $uploadDir = __DIR__ . '/../../storage/user-images/';
+                if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
+                    $profile_picture_link = $newFileName;
+                }
+            }
         }
 
         if (!empty($errors)) {
-            require __DIR__ . '/../../views/pages/create-user.php';
+            $_SESSION['errors'] = $errors;
+            header('Location: ' . base_path('user/create'));
             return;
         }
 
-        $user = new User(null, $name, $email, $password, $role, $room, '');
+        $user = new User(null, $name, $email, $password, $role, $room, $profile_picture_link);
         $user->save();
         header('Location: ' . base_path('admin/users'));
     }
 
     public function login()
     {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $user = User::findByEmail($email);
-        if ($user && strcmp($password, $user->password) == 0) {
-            \App\Services\Auth::login($user->id);
-            header('Location: ' . base_path('/home'));
-        } else {
-            header('Location: ' . base_path('login'));
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        
+        $errors = [];
+
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "A valid email address is required.";
         }
+        if (empty($password)) {
+            $errors[] = "Password is required.";
+        }
+
+        if (empty($errors)) {
+            $user = User::findByEmail($email);
+            if ($user && strcmp($password, $user->password) == 0) {
+                \App\Services\Auth::login($user->id);
+                header('Location: ' . base_path('/home'));
+                return;
+            } else {
+                $errors[] = "Invalid email or password.";
+            }
+        }
+
+        $_SESSION['errors'] = $errors;
+        header('Location: ' . base_path('login'));
     }
 
     public function logout()
@@ -117,84 +144,65 @@ class UserController
             return;
         }
 
-        $rooms = Room::all();
-        $validRoomNames = array_column($rooms, 'name');
-
-        $name        = trim($_POST['name'] ?? '');
-        $email       = trim($_POST['email'] ?? '');
-        $password    = $_POST['password'] ?? '';
-        $confirm     = $_POST['confirm_password'] ?? '';
-        $role        = $_POST['role'] ?? '';
-        $room        = $_POST['room'] ?? '';
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $role = $_POST['role'] ?? '';
+        $room = trim($_POST['room'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
 
         $errors = [];
 
-        if (strlen($name) < 2) {
-            $errors['name'] = 'Name is required and must be at least 2 characters.';
+        if (empty($name) || strlen($name) < 2) {
+            $errors[] = "Name is required and must be at least 2 characters.";
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Please enter a valid email address.';
-        } elseif ($email !== $editUser->email) {
-            $existing = User::findByEmail($email);
-            if ($existing && $existing->id != $id) {
-                $errors['email'] = 'This email is already registered to another user.';
-            }
+            $errors[] = "A valid email address is required.";
         }
-        if ($password !== '') {
-            if (strlen($password) < 6) {
-                $errors['password'] = 'Password must be at least 6 characters.';
-            }
-            if ($confirm !== $password) {
-                $errors['confirm_password'] = 'Passwords do not match.';
-            }
+        if (empty($role) || !in_array(strtoupper($role), ['ADMIN', 'USER'])) {
+            $errors[] = "A valid role is required.";
         }
-        if (!in_array($room, $validRoomNames, true)) {
-            $errors['room'] = 'Please select a valid room.';
+        if (empty($room)) {
+            $errors[] = "Room selection is required.";
         }
-        if (!in_array($role, ['USER', 'ADMIN'], true)) {
-            $errors['role'] = 'Please select a valid role.';
+
+        if (!empty($password) && strlen($password) < 6) {
+            $errors[] = "Password must be at least 6 characters.";
+        }
+        if (!empty($password) && $password !== $confirmPassword) {
+            $errors[] = "Passwords do not match.";
         }
 
         // Validate uploaded image
         $file = $_FILES['profile_image'] ?? null;
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
             if ($file['size'] > 2 * 1024 * 1024) {
-                $errors['profile_image'] = 'Image must be under 2MB.';
-            }
-            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            if (!in_array($file['type'], $allowedTypes, true)) {
-                $errors['profile_image'] = 'Only JPG, PNG, GIF or WebP images are allowed.';
-            }
-        }
-
-        if (!empty($errors)) {
-            // Re-apply posted values so form retains input
-            $editUser->name  = $name;
-            $editUser->email = $email;
-            $editUser->role  = $role;
-            $editUser->room  = $room;
-            require __DIR__ . '/../../views/pages/admin/users-edit.php';
-            return;
-        }
-
-        $editUser->name  = $name;
-        $editUser->email = $email;
-        $editUser->role  = $role;
-        $editUser->room  = $room;
-
-        if ($password !== '') {
-            $editUser->password = $password;
-        }
-
-        if ($file && $file['error'] === UPLOAD_ERR_OK) {
-            $extension   = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $newFileName = uniqid('user_', true) . '.' . $extension;
-            $uploadDir   = __DIR__ . '/../../storage/user-images/';
-            if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
-                $editUser->profile_picture_link = $newFileName;
+                $errors[] = "Image size cannot exceed 2MB.";
+            } else {
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $newFileName = uniqid('user_', true) . '.' . $extension;
+                $uploadDir = __DIR__ . '/../../storage/user-images/';
+                if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
+                    $editUser->profile_picture_link = $newFileName;
+                }
             }
         } else {
             $editUser->profile_picture_link = $_POST['profile_picture_link'] ?? $editUser->profile_picture_link ?? '';
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['errors'] = $errors;
+            header('Location: ' . base_path('admin/users/edit?id=' . $id));
+            return;
+        }
+
+        $editUser->name = $name;
+        $editUser->email = $email;
+        $editUser->role = $role;
+        $editUser->room = $room;
+
+        if (!empty($password)) {
+            $editUser->password = $password;
         }
 
         User::updateUser($id, $editUser);
