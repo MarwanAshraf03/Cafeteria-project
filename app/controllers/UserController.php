@@ -89,7 +89,15 @@ class UserController
 
         if (empty($errors)) {
             $user = User::findByEmail($email);
-            if ($user && strcmp($password, $user->password) == 0) {
+            // Check matching hash OR fallback to plain-text for backward compatibility with seeded accounts
+            if ($user && (password_verify($password, $user->password) || $password === $user->password)) {
+                
+                // Optional: Automatically upgrade plain-text passwords to hashed passwords upon successful login
+                if ($password === $user->password && !password_verify($password, $user->password)) {
+                    $user->password = password_hash($password, PASSWORD_DEFAULT);
+                    User::updateUser($user->id, $user);
+                }
+
                 \App\Services\Auth::login($user->id);
                 header('Location: ' . base_path('/home'));
                 return;
@@ -144,27 +152,41 @@ class UserController
             return;
         }
 
-        $editUser->name = trim($_POST['name'] ?? $editUser->name);
-        $editUser->email = trim($_POST['email'] ?? $editUser->email);
-        $editUser->role = $_POST['role'] ?? $editUser->role;
-        $editUser->room = trim($_POST['room'] ?? $editUser->room);
+        $name = trim($_POST['name'] ?? $editUser->name);
+        $email = trim($_POST['email'] ?? $editUser->email);
+        $role = $_POST['role'] ?? $editUser->role;
+        $room = trim($_POST['room'] ?? $editUser->room);
+        $errors = [];
+
+        if (empty($name) || strlen($name) < 2) {
+            $errors[] = "Name is required and must be at least 2 characters.";
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "A valid email address is required.";
+        }
 
         $newPassword = trim($_POST['password'] ?? '');
         if ($newPassword !== '') {
-            $editUser->password = $newPassword;
+            if (strlen($newPassword) < 6) {
+                $errors[] = "Password must be at least 6 characters.";
+            } else {
+                $editUser->password = $newPassword;
+            }
         }
 
         // Validate uploaded image
         $file = $_FILES['profile_image'] ?? null;
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
-            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $newFileName = uniqid('user_', true) . '.' . $extension;
-            $uploadDir = __DIR__ . '/../../storage/user-images/';
-            if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
-                $editUser->profile_picture_link = $newFileName;
+            if ($file['size'] > 2 * 1024 * 1024) {
+                $errors[] = "Image size cannot exceed 2MB.";
+            } else {
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $newFileName = uniqid('user_', true) . '.' . $extension;
+                $uploadDir = __DIR__ . '/../../storage/user-images/';
+                if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
+                    $editUser->profile_picture_link = $newFileName;
+                }
             }
-        } else {
-            $editUser->profile_picture_link = $_POST['profile_picture_link'] ?? $editUser->profile_picture_link ?? '';
         }
 
         if (!empty($errors)) {
@@ -178,10 +200,6 @@ class UserController
         $editUser->role = $role;
         $editUser->room = $room;
 
-        if (!empty($password)) {
-            $editUser->password = $password;
-        }
-
         User::updateUser($id, $editUser);
         header('Location: ' . base_path('admin/users'));
     }
@@ -192,7 +210,11 @@ class UserController
         if ($id) {
             $user = User::find($id);
             if ($user) {
-                $user->delete();
+                try {
+                    $user->delete();
+                } catch (\PDOException $e) {
+                    $_SESSION['errors'] = ["Cannot delete this user because they have pending or historical orders associated with their account."];
+                }
             }
         }
         header('Location: ' . base_path('admin/users'));
