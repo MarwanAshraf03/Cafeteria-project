@@ -5,13 +5,16 @@ if (!isset($activePage)) {
 
 $userName = 'Guest';
 $userRole = '';
+$userImage = '';
 if (isset($user)) {
   if (is_array($user)) {
     $userName = $user['name'] ?? 'Guest';
     $userRole = $user['role'] ?? '';
+    $userImage = $user['profile_picture_link'] ?? '';
   } elseif (is_object($user)) {
     $userName = $user->name ?? 'Guest';
     $userRole = $user->role ?? '';
+    $userImage = $user->profile_picture_link ?? '';
   }
 }
 
@@ -20,10 +23,14 @@ $isAdmin = $userRole !== '' && strtoupper((string)$userRole) === 'ADMIN';
 ?>
 <div class="sidebar d-flex flex-column p-3">
   <div class="d-flex align-items-center mb-4">
-    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2"
-      style="width:40px;height:40px;">
-      <span class="material-symbols-outlined">restaurant</span>
-    </div>
+    <?php if (!empty($userImage)): ?>
+      <img src="<?php echo base_path('storage/user-images/' . htmlspecialchars($userImage)); ?>" alt="Profile" class="rounded-circle me-2" style="width:40px;height:40px;object-fit:cover;">
+    <?php else: ?>
+      <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+        style="width:40px;height:40px;">
+        <span class="material-symbols-outlined">restaurant</span>
+      </div>
+    <?php endif; ?>
     <div>
       <h6 class="mb-0 serif"><?php echo htmlspecialchars($userName); ?></h6>
       <small class="text-muted"><?php echo $userRole !== '' ? htmlspecialchars($userRole) : 'Please login'; ?></small>

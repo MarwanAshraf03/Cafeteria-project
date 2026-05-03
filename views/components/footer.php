@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__ . '/../../core/globals.php');
 ?>
-<footer class="bg-light border-top py-4">
+<footer class="bg-light border-top py-4 mt-auto">
   <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center text-center gap-3">
     
     <div class="fw-bold text-success"><?php echo app_name ?></div>

@@ -12,6 +12,18 @@ ob_start();
     </a>
   </div>
 
+  <?php if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])): ?>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <ul class="mb-0 text-start">
+              <?php foreach ($_SESSION['errors'] as $error): ?>
+                  <li><?php echo htmlspecialchars($error); ?></li>
+              <?php endforeach; ?>
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      <?php unset($_SESSION['errors']); ?>
+  <?php endif; ?>
+
   <?php if (!empty($successMessage)): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       <?php echo htmlspecialchars($successMessage); ?>

@@ -8,7 +8,7 @@ class Database
     private $host = "127.0.0.1:3306";
     private $db_name = "cafeteria_demo";
     private $username = "root";
-    private $password = "root";
+    private $password = "";
 
     private function __construct()
     {
@@ -44,4 +44,3 @@ class Database
         return $this->connection;
     }
 }
-?>

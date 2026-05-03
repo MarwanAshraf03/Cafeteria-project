@@ -4,7 +4,6 @@ body {
 }
 .main-content {
   margin-left: 260px;
-  padding: 20px;
 }
 .sidebar {
   width: 260px;
@@ -19,6 +18,7 @@ body {
   font-weight: bold;
   background: #e9f5ee;
   border-left: 4px solid #198754;
+  color: #000 !important;
 }
 .sidebar .nav-link {
   color: #555;

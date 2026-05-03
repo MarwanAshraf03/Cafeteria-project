@@ -21,11 +21,11 @@
     <?php 
     require __DIR__ . '/../components/side-bar.php';
     ?>
-    <div class="main-content">
-        <?php
-        echo $content;
-        require __DIR__ . '/../components/footer.php';
-        ?>
+    <div class="main-content d-flex flex-column" style="min-height: 100vh;">
+        <div class="flex-grow-1 p-4">
+            <?php echo $content; ?>
+        </div>
+        <?php require __DIR__ . '/../components/footer.php'; ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

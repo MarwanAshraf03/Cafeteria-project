@@ -74,7 +74,7 @@ ob_start();
                                 data-product-id="<?php echo $product['id']; ?>"
                                 data-price="<?php echo $product['price']; ?>">
                                 <button type="button" class="product-image-btn" data-action="add">
-                                    <img src="../storage/product-images/<?php echo htmlspecialchars($product['image_url']); ?>"
+                                    <img src="<?php echo (strpos($product['image_url'], 'http') === 0) ? htmlspecialchars($product['image_url']) : base_path('storage/product-images/' . htmlspecialchars($product['image_url'])); ?>"
                                         alt="<?php echo htmlspecialchars($product['name']); ?>">
                                 </button>
                                 <div class="card-body">

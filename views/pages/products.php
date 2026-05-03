@@ -34,7 +34,7 @@ require_once __DIR__ . "/../../app/enums/ProductStatus.php";
                 <?= htmlspecialchars($product['price']) ?> <span class="small">EGP</span>
               </td>
               <td>
-                <img src="../../storage/product-images/<?= htmlspecialchars($product['image_url']) ?>"
+                <img src="<?= (strpos($product['image_url'], 'http') === 0) ? htmlspecialchars($product['image_url']) : base_path('storage/product-images/' . htmlspecialchars($product['image_url'])) ?>"
                   class="rounded-3 shadow-sm border" style="width: 60px; height: 60px; object-fit: cover;"
                   alt="<?= htmlspecialchars($product['name']) ?>">
               </td>
