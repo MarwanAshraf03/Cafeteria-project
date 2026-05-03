@@ -5,9 +5,16 @@ namespace App\Services;
 class Router
 {
     private $routes = [];
+    private $routes_middleware = [];
     public function add($uri, $method, $handler)
     {
         $this->routes[$uri][$method] = $handler;
+    }
+
+    public function add_middleware($uri, $method, $handler)
+    {
+        $this->routes_middleware[$uri][$method][$handler["key"]] = $handler;
+        // $this->routes_middleware[$uri][$method] = $handler;
     }
     public function dispatch($requestUri)
     {
@@ -20,7 +27,20 @@ class Router
         }
         $uri = '/' . trim($uri, '/');
         $method = $_POST['_method'] ?? $_SERVER['REQUEST_METHOD'];
-
+        $result = $this->check_middleware($uri, $method);
+        if (!$result['success']) {
+            header("HTTP/1.0 401 Unauthorized");
+            echo "<h1>401 Unauthorized</h1>";
+            echo "You are unauthorized to access this page: " . htmlspecialchars($uri);
+            echo "<pre>";
+            echo "" . $result['errors'] . "\n";
+            $arr["first"]["second"]["third"] = "four";
+            // $arr["first"]["second"]["third.2"] = "five";
+            var_dump($arr["first"]["second"]);
+            echo "<pre>";
+            exit;
+            // header("Location: " . base_path("login"));
+        }
         if (isset($this->routes[$uri][$method])) {
             $handler = $this->routes[$uri][$method];
 
@@ -44,9 +64,37 @@ class Router
         header("HTTP/1.0 404 Not Found");
         echo "<h1>404 Not Found</h1>";
         echo "The page you requested was not found: " . htmlspecialchars($uri);
-        echo "<pre>";
-        echo $method . "\n";
-        var_dump($this->routes);
-        echo "</pre>";
+    }
+    private function check_middleware($uri, $method)
+    {
+        $success = true;
+        $errors = [];
+
+        if (isset($this->routes_middleware[$uri][$method])) {
+            $handlers = $this->routes_middleware[$uri][$method];
+
+            foreach ($handlers as $handler) {
+                if (!(bool) $handler["handler"]()) {
+                    $success = false;
+                    $errors[] = $handler["error_message"];
+                }
+            }
+            /*
+            ["success"=> true or false, "errors" => $errors]
+            */
+            $errors = implode(", ", $errors);
+            // if (is_callable($handler["handler"])) {
+            //     return (bool) $handler["handler"]();
+            // }
+
+            // if (!$success) {
+            //     return ["success" => $success, "errors" => $errors];
+            // }
+        }
+        // } else {
+        //     // return true;
+        return ["success" => $success, "errors" => $errors];
+
+        // }
     }
 }

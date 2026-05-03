@@ -12,9 +12,13 @@ require_once __DIR__ . '/../models/order.php';
 require_once __DIR__ . '/../models/order_item.php';
 require_once __DIR__ . '/../models/user.php';
 require_once __DIR__ . '/../services/Auth.php';
+require_once __DIR__ . '/../enums/OrderStatus.php';
 
-class OrderController {
-    private function parseDateInput($value) {
+
+class OrderController
+{
+    private function parseDateInput($value)
+    {
         if (!is_string($value) || trim($value) === '') {
             return '';
         }
@@ -27,7 +31,8 @@ class OrderController {
         return $trimmed;
     }
 
-    private function parsePositiveIntInput($value) {
+    private function parsePositiveIntInput($value)
+    {
         if ($value === null || $value === '') {
             return 0;
         }
@@ -40,7 +45,8 @@ class OrderController {
         return $number > 0 ? $number : 0;
     }
 
-    public function home() {
+    public function home()
+    {
         $products = Product::all();
         $rooms = Room::all();
         $user = \App\Services\Auth::user();
@@ -171,7 +177,8 @@ class OrderController {
         header('Location: ' . base_path('orders'));
     }
 
-    public function adminChecks() {
+    public function adminChecks()
+    {
         $user = \App\Services\Auth::user();
         if (!$user) {
             header('Location: ' . base_path('login'));
@@ -200,7 +207,7 @@ class OrderController {
         $availableUsers = User::allCustomers();
 
         $totalUsersWithChecks = Order::countChecksUsers($selectedUserId, $fromDate, $toDate);
-        $totalPages = max(1, (int)ceil($totalUsersWithChecks / $perPage));
+        $totalPages = max(1, (int) ceil($totalUsersWithChecks / $perPage));
         if ($currentPage > $totalPages) {
             $currentPage = $totalPages;
         }
@@ -228,7 +235,8 @@ class OrderController {
         require __DIR__ . '/../../views/pages/admin-checks.php';
     }
 
-    public function adminOrders() {
+    public function adminOrders()
+    {
         $user = \App\Services\Auth::user();
         if (!$user) {
             header('Location: ' . base_path('login'));
@@ -238,7 +246,7 @@ class OrderController {
             header('Location: ' . base_path(''));
             return;
         }
-        
+
         $pendingOrders = Order::getPendingOrders();
         $ordersWithItems = [];
         foreach ($pendingOrders as $order) {
@@ -252,11 +260,12 @@ class OrderController {
             $order['items'] = OrderItem::forOrder($order['id']);
             $canceledOrdersWithItems[] = $order;
         }
-        
+
         require __DIR__ . '/../../views/pages/admin/orders.php';
     }
 
-    public function deliver() {
+    public function deliver()
+    {
         $user = \App\Services\Auth::user();
         if (!$user) {
             header('Location: ' . base_path('login'));
@@ -271,7 +280,7 @@ class OrderController {
         if ($orderId > 0) {
             Order::updateStatus($orderId, OrderStatus::Done->value);
         }
-        
+
         header('Location: ' . base_path('admin/orders'));
     }
 }

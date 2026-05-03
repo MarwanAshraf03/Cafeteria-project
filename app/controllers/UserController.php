@@ -144,47 +144,24 @@ class UserController
             return;
         }
 
-        $name = trim($_POST['name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $role = $_POST['role'] ?? '';
-        $room = trim($_POST['room'] ?? '');
-        $password = $_POST['password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
+        $editUser->name = trim($_POST['name'] ?? $editUser->name);
+        $editUser->email = trim($_POST['email'] ?? $editUser->email);
+        $editUser->role = $_POST['role'] ?? $editUser->role;
+        $editUser->room = trim($_POST['room'] ?? $editUser->room);
 
-        $errors = [];
-
-        if (empty($name) || strlen($name) < 2) {
-            $errors[] = "Name is required and must be at least 2 characters.";
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = "A valid email address is required.";
-        }
-        if (empty($role) || !in_array(strtoupper($role), ['ADMIN', 'USER'])) {
-            $errors[] = "A valid role is required.";
-        }
-        if (empty($room)) {
-            $errors[] = "Room selection is required.";
-        }
-
-        if (!empty($password) && strlen($password) < 6) {
-            $errors[] = "Password must be at least 6 characters.";
-        }
-        if (!empty($password) && $password !== $confirmPassword) {
-            $errors[] = "Passwords do not match.";
+        $newPassword = trim($_POST['password'] ?? '');
+        if ($newPassword !== '') {
+            $editUser->password = $newPassword;
         }
 
         // Validate uploaded image
         $file = $_FILES['profile_image'] ?? null;
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
-            if ($file['size'] > 2 * 1024 * 1024) {
-                $errors[] = "Image size cannot exceed 2MB.";
-            } else {
-                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $newFileName = uniqid('user_', true) . '.' . $extension;
-                $uploadDir = __DIR__ . '/../../storage/user-images/';
-                if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
-                    $editUser->profile_picture_link = $newFileName;
-                }
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $newFileName = uniqid('user_', true) . '.' . $extension;
+            $uploadDir = __DIR__ . '/../../storage/user-images/';
+            if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
+                $editUser->profile_picture_link = $newFileName;
             }
         } else {
             $editUser->profile_picture_link = $_POST['profile_picture_link'] ?? $editUser->profile_picture_link ?? '';
