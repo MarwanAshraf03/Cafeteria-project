@@ -4,7 +4,7 @@ use App\Models\User;
 use App\Models\Room;
 
 require_once __DIR__ . '/../models/user.php';
-require_once __DIR__ . '/../models/Room.php';
+require_once __DIR__ . '/../models/room.php';
 require_once __DIR__ . '/../services/Auth.php';
 
 class UserController
@@ -82,10 +82,10 @@ class UserController
             return;
         }
 
-        $editUser->name  = trim($_POST['name'] ?? $editUser->name);
+        $editUser->name = trim($_POST['name'] ?? $editUser->name);
         $editUser->email = trim($_POST['email'] ?? $editUser->email);
-        $editUser->role  = $_POST['role'] ?? $editUser->role;
-        $editUser->room  = trim($_POST['room'] ?? $editUser->room);
+        $editUser->role = $_POST['role'] ?? $editUser->role;
+        $editUser->room = trim($_POST['room'] ?? $editUser->room);
 
         $newPassword = trim($_POST['password'] ?? '');
         if ($newPassword !== '') {
@@ -94,9 +94,9 @@ class UserController
 
         $file = $_FILES['profile_image'] ?? null;
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
-            $extension  = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
             $newFileName = uniqid('user_', true) . '.' . $extension;
-            $uploadDir   = __DIR__ . '/../../storage/user-images/';
+            $uploadDir = __DIR__ . '/../../storage/user-images/';
             if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
                 $editUser->profile_picture_link = $newFileName;
             }
