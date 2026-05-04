@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS rooms (
   extension VARCHAR(15) NOT NULL
 );
 
-INSERT INTO rooms (name, extension) VALUES ("001", "40502"), ("002", "40502"), ("003", "40502");
+INSERT INTO rooms (name, extension) VALUES ("001", "40502"), ("002", "44444"), ("003", "55555");
 
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS products (
   FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
-INSERT INTO products (name, price, category_id) VALUES ("tea", 10, 1), ("cola", 5, 2);
+INSERT INTO products (name, price, category_id, image_url) VALUES ("tea", 10, 1, "product_69f5f5a401c110.55088967.jpg"), ("cola", 5, 2, "product_69f5f5472ec583.08330250.jpeg");
 
 CREATE TABLE IF NOT EXISTS `orders` (
   id INT AUTO_INCREMENT PRIMARY KEY,
