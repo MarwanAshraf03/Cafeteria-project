@@ -140,7 +140,7 @@ function order_status_badge($status)
                           <div class="position-relative d-inline-block">
                             <?php if (!empty($item['image_url'])): ?>
                               <?php $imgUrl = str_starts_with($item['image_url'], 'http') ? $item['image_url'] : base_path($item['image_url']); ?>
-                              <img src="<?php echo htmlspecialchars($imgUrl); ?>"
+                              <img src="../../../storage/product-images/<?php echo htmlspecialchars($imgUrl); ?>"
                                 alt="<?php echo htmlspecialchars($item['product_name']); ?>"
                                 style="width: 60px; height: 60px; object-fit: cover;" class="rounded-circle mb-2 border">
                             <?php else: ?>
