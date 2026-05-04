@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use App\Models\Room;
+use App\Models\room;
 
 require_once __DIR__ . '/../models/user.php';
 require_once __DIR__ . '/../models/room.php';
@@ -11,7 +11,7 @@ class UserController
 {
     public function createUserForm()
     {
-        $rooms = Room::all();
+        $rooms = room::all();
         $errors = [];
         $old = [];
         require __DIR__ . '/../../views/pages/create-user.php';
@@ -24,8 +24,8 @@ class UserController
         $password = $_POST['password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
         $role = $_POST['role'] ?? '';
-        $room = $_POST['room'] ?? '';
-        
+        $room_id = $_POST['room_id'] ?? '';
+
         $errors = [];
 
         if (empty($name) || strlen($name) < 2) {
@@ -43,11 +43,11 @@ class UserController
         if (empty($role) || !in_array(strtoupper($role), ['ADMIN', 'USER'])) {
             $errors[] = "A valid role is required.";
         }
-        if (empty($room)) {
-            $errors[] = "Room selection is required.";
+        if (empty($room_id)) {
+            $errors[] = "room_id selection is required.";
         }
 
-        $profile_picture_link = "";
+        $profile_picture_url = "";
         $file = $_FILES['profile_image'] ?? null;
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
             if ($file['size'] > 2 * 1024 * 1024) {
@@ -57,7 +57,7 @@ class UserController
                 $newFileName = uniqid('user_', true) . '.' . $extension;
                 $uploadDir = __DIR__ . '/../../storage/user-images/';
                 if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
-                    $profile_picture_link = $newFileName;
+                    $profile_picture_url = $newFileName;
                 }
             }
         }
@@ -68,7 +68,7 @@ class UserController
             return;
         }
 
-        $user = new User(null, $name, $email, $password, $role, $room, $profile_picture_link);
+        $user = new User(null, $name, $email, $password, $role, $room_id, $profile_picture_url);
         $user->save();
         header('Location: ' . base_path('admin/users'));
     }
@@ -77,7 +77,7 @@ class UserController
     {
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
-        
+
         $errors = [];
 
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -91,7 +91,7 @@ class UserController
             $user = User::findByEmail($email);
             // Check matching hash OR fallback to plain-text for backward compatibility with seeded accounts
             if ($user && (password_verify($password, $user->password) || $password === $user->password)) {
-                
+
                 // Optional: Automatically upgrade plain-text passwords to hashed passwords upon successful login
                 if ($password === $user->password && !password_verify($password, $user->password)) {
                     $user->password = password_hash($password, PASSWORD_DEFAULT);
@@ -118,7 +118,7 @@ class UserController
 
     public function listUsers()
     {
-        $users = User::all();
+        $users = User::all_with_rooms();
         require __DIR__ . '/../../views/pages/admin/users.php';
     }
 
@@ -134,7 +134,7 @@ class UserController
             header('Location: ' . base_path('admin/users'));
             return;
         }
-        $rooms = Room::all();
+        $rooms = room::all();
         $errors = [];
         require __DIR__ . '/../../views/pages/admin/users-edit.php';
     }
@@ -155,7 +155,7 @@ class UserController
         $name = trim($_POST['name'] ?? $editUser->name);
         $email = trim($_POST['email'] ?? $editUser->email);
         $role = $_POST['role'] ?? $editUser->role;
-        $room = trim($_POST['room'] ?? $editUser->room);
+        $room_id = trim($_POST['room_id'] ?? $editUser->room_id);
         $errors = [];
 
         if (empty($name) || strlen($name) < 2) {
@@ -184,7 +184,7 @@ class UserController
                 $newFileName = uniqid('user_', true) . '.' . $extension;
                 $uploadDir = __DIR__ . '/../../storage/user-images/';
                 if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
-                    $editUser->profile_picture_link = $newFileName;
+                    $editUser->profile_picture_url = $newFileName;
                 }
             }
         }
@@ -198,7 +198,7 @@ class UserController
         $editUser->name = $name;
         $editUser->email = $email;
         $editUser->role = $role;
-        $editUser->room = $room;
+        $editUser->room_id = $room_id;
 
         User::updateUser($id, $editUser);
         header('Location: ' . base_path('admin/users'));

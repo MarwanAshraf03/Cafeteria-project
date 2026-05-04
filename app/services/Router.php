@@ -34,12 +34,10 @@ class Router
             echo "You are unauthorized to access this page: " . htmlspecialchars($uri);
             echo "<pre>";
             echo "" . $result['errors'] . "\n";
-            $arr["first"]["second"]["third"] = "four";
-            // $arr["first"]["second"]["third.2"] = "five";
-            var_dump($arr["first"]["second"]);
             echo "<pre>";
+            // exit;
+            // header("Location: " . Auth::check() ? base_path("login") : base_path("login"));
             exit;
-            // header("Location: " . base_path("login"));
         }
         if (isset($this->routes[$uri][$method])) {
             $handler = $this->routes[$uri][$method];
