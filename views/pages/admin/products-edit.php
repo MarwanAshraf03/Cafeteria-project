@@ -2,6 +2,9 @@
 require_once(__DIR__ . '/../../../core/globals.php');
 ob_start();
 ?>
+<?php if (isset($_GET['errors'])): ?>
+    <?php $errors = json_decode(urldecode($_GET['errors'])) ?>
+<?php endif; ?>
 <div class="mb-4">
     <h3 style="font-family:'Noto Serif'">Update Existing Product</h3>
     <p class="text-muted">Update Product</p>
@@ -38,12 +41,26 @@ ob_start();
             <label class="form-label">Product Name</label>
             <input class="form-control" type="text" name="name" value="<?= htmlspecialchars($product['name']) ?>"
                 required>
+            <?php if (isset($errors->name)): ?>
+                <br>
+                <div class="alert alert-danger">
+                    <?= implode(', ', $errors->name) ?>
+                </div>
+            <?php endif; ?>
+
         </div>
 
         <div class="col-md-6">
             <label class="form-label">Price</label>
             <input class="form-control" min="1" type="number" name="price"
                 value="<?= htmlspecialchars($product['price']) ?>" required>
+            <?php if (isset($errors->price)): ?>
+                <br>
+                <div class="alert alert-danger">
+                    <?= implode(', ', $errors->price) ?>
+                </div>
+            <?php endif; ?>
+
         </div>
 
         <div class="col-md-6">
